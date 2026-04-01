@@ -28,184 +28,95 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);disp
 .spl{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:.4px;padding:3px 9px;border-radius:20px;}
 .spl-t{background:var(--surface3);color:var(--text);border:1px solid var(--border2);}
 .spl-a{background:rgba(224,85,53,.14);color:#e87862;border:1px solid rgba(224,85,53,.35);}
-.spl-d{background:rgba(58,173,104,.14);color:#3aad68;border:1px solid rgba(58,173,104,.35);}
 .tb-right{margin-left:auto;display:flex;gap:5px;align-items:center;}
-.admin-badge{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;padding:3px 9px;border-radius:4px;background:rgba(232,160,32,.18);color:var(--accent);border:1px solid rgba(232,160,32,.4);display:none;align-items:center;gap:4px;}
+.admin-badge{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;padding:3px 9px;border-radius:4px;background:rgba(232,160,32,.18);color:var(--accent);border:1px solid rgba(232,160,32,.4);display:none;}
 .admin-badge.on{display:flex;}
 
 /* BUTTONS */
-.btn{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:.4px;padding:5px 11px;border-radius:5px;border:none;cursor:pointer;transition:all .14s;display:flex;align-items:center;gap:5px;white-space:nowrap;}
+.btn{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12.5px;padding:5px 11px;border-radius:5px;border:none;cursor:pointer;transition:all .14s;display:flex;align-items:center;gap:5px;}
 .btn-primary{background:var(--accent);color:#000;}
-.btn-primary:hover{background:#f0b030;}
 .btn-ghost{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
-.btn-ghost:hover{background:var(--surface3);}
-.btn-active{background:rgba(232,160,32,.18);color:var(--accent);border:1px solid rgba(232,160,32,.45)!important;}
-.btn-danger2{background:rgba(224,85,53,.14);color:#e87862;border:1px solid rgba(224,85,53,.35);}
-.btn-danger2:hover{background:rgba(224,85,53,.25);}
+.btn-active{background:rgba(232,160,32,.18);color:var(--accent);border:1px solid var(--accent)!important;}
 
-/* Admin-only elements */
+/* Admin-only */
 .admin-only{display:none!important;}
 body.admin-mode .admin-only{display:flex!important;}
 
-/* MAIN */
 #main{display:flex;flex:1;overflow:hidden;}
 
 /* SIDEBAR */
-#sidebar{width:252px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden;}
+#sidebar{width:252px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;}
 .sb-sec{padding:10px 11px;border-bottom:1px solid var(--border);}
 .sb-lbl{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:800;letter-spacing:1.2px;color:var(--text-dim);text-transform:uppercase;margin-bottom:7px;}
-.layer-btns{display:flex;gap:4px;flex-wrap:wrap;}
-.lbtn{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;padding:4px 0;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text-muted);cursor:pointer;transition:all .14s;flex:1;text-align:center;min-width:70px;}
-.lbtn:hover{background:var(--surface3);}
-.lbtn.on{background:rgba(232,160,32,.14);color:var(--accent);border-color:rgba(232,160,32,.4);}
-.ov-btns{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap;}
-.ovbtn{font-family:'Barlow Condensed',sans-serif;font-size:10.5px;font-weight:700;padding:3px 8px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text-muted);cursor:pointer;transition:all .14s;}
-.ovbtn:hover{background:var(--surface3);}
-.ovbtn.on{background:rgba(45,212,168,.1);color:#2dd4a8;border-color:rgba(45,212,168,.35);}
+.ovbtn{font-family:'Barlow Condensed',sans-serif;font-size:10.5px;font-weight:700;padding:3px 8px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text-muted);cursor:pointer;}
+.ovbtn.on{background:rgba(232,160,32,.1);color:var(--accent);border-color:var(--accent);}
 
-.filter-wrap{display:flex;flex-wrap:wrap;gap:4px;max-height:280px;overflow-y:auto;}
-.fchip{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;padding:2px 7px;border-radius:4px;cursor:pointer;border:1px solid transparent;transition:opacity .14s;display:flex;align-items:center;gap:3px;line-height:1.5;}
+.filter-wrap{display:flex;flex-wrap:wrap;gap:4px;max-height:200px;overflow-y:auto;}
+.fchip{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;padding:2px 7px;border-radius:4px;cursor:pointer;opacity:0.3;}
 .fchip.on{opacity:1;}
-.fchip.off{opacity:.25;}
 
 #incident-list{flex:1;overflow-y:auto;padding:7px;}
-.inc-item{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 9px;margin-bottom:5px;cursor:pointer;transition:background .14s;}
-.inc-item:hover{background:var(--surface3);}
-.inc-hd{display:flex;align-items:center;gap:5px;margin-bottom:3px;}
-.inc-badge{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;padding:1px 5px;border-radius:3px;color:#fff;}
-.inc-status{margin-left:auto;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;}
-.inc-desc{font-size:11.5px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.inc-date{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-dim);margin-top:2px;}
+.inc-item{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 9px;margin-bottom:5px;cursor:pointer;}
 
 /* MAP */
 #map{flex:1;}
 #map.addmode{cursor:crosshair!important;}
 
-/* ADD BAR */
-#addbar{display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--accent);color:#000;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:13px;padding:8px 22px;border-radius:30px;z-index:1500;cursor:pointer;box-shadow:0 4px 28px rgba(232,160,32,.5);animation:glow 2s infinite;}
-@keyframes glow{0%,100%{box-shadow:0 4px 20px rgba(232,160,32,.4);}50%{box-shadow:0 4px 36px rgba(232,160,32,.8);}}
-
-/* MODAL */
-.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:2000;align-items:center;justify-content:center;backdrop-filter:blur(5px);}
-.ov.open{display:flex;}
-.modal{background:var(--surface);border:1px solid var(--border);border-radius:10px;width:500px;max-width:96vw;max-height:92vh;overflow-y:auto;}
-.modal-sm{width:360px;}
-.mhd{padding:13px 17px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--surface);z-index:1;}
-.mhd-title{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:.4px;}
-.mclose{background:none;border:none;color:var(--text-muted);font-size:22px;cursor:pointer;padding:2px 5px;line-height:1;}
-.mclose:hover{color:var(--text);}
-.mbd{padding:17px;}
-.mft{padding:13px 17px;border-top:1px solid var(--border);display:flex;gap:7px;justify-content:flex-end;}
-.fg{margin-bottom:12px;}
-.fl{display:block;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;letter-spacing:1px;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px;}
-.fc{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:7px 10px;color:var(--text);font-family:'Barlow',sans-serif;font-size:13.5px;transition:border-color .14s;}
-.fc:focus{outline:none;border-color:var(--accent);}
-.fc::placeholder{color:var(--text-dim);}
-select.fc option{background:var(--surface2);}
-textarea.fc{min-height:74px;resize:vertical;}
-.frow{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
-.tog-row{display:flex;align-items:center;gap:10px;}
-.tog{position:relative;width:40px;height:22px;flex-shrink:0;}
-.tog input{opacity:0;width:0;height:0;}
-.tog-sl{position:absolute;inset:0;background:var(--border2);border-radius:22px;cursor:pointer;transition:.2s;}
-.tog-sl:before{content:'';position:absolute;width:16px;height:16px;left:3px;top:3px;background:var(--text-muted);border-radius:50%;transition:.2s;}
-.tog input:checked+.tog-sl{background:rgba(224,85,53,.3);}
-.tog input:checked+.tog-sl:before{transform:translateX(18px);background:var(--danger);}
-.tog-lbl{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;}
-
-/* PHOTO UPLOAD */
-.photo-upload-area{border:2px dashed var(--border);border-radius:8px;background:var(--surface2);padding:12px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:12px;}
-.photo-upload-area:hover{border-color:var(--accent);background:var(--surface3);}
-.photo-upload-area.drag-over{border-color:var(--accent);background:rgba(232,160,32,.1);}
+/* PHOTO UPLOAD AREA */
+.photo-upload-area{border:2px dashed var(--border);border-radius:8px;background:var(--surface2);padding:15px;text-align:center;cursor:pointer;margin-bottom:12px;}
+.photo-upload-area:hover{border-color:var(--accent);}
 .photo-preview{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;justify-content:center;}
-.photo-preview-item{position:relative;width:70px;height:70px;border-radius:6px;overflow:hidden;border:2px solid var(--border);background:var(--surface);}
+.photo-preview-item{position:relative;width:70px;height:70px;border-radius:6px;overflow:hidden;border:2px solid var(--border);}
 .photo-preview-item img{width:100%;height:100%;object-fit:cover;}
-.photo-preview-remove{position:absolute;top:-8px;right:-8px;width:20px;height:20px;background:var(--danger);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:12px;cursor:pointer;border:2px solid var(--surface);}
-.photo-preview-remove:hover{background:#ff5555;}
+.photo-preview-remove{position:absolute;top:0;right:0;background:var(--danger);color:white;width:18px;height:18px;font-size:12px;text-align:center;cursor:pointer;}
 .photo-input-hidden{display:none;}
-.photo-upload-icon{font-size:28px;margin-bottom:5px;color:var(--text-muted);}
-.photo-upload-text{font-size:12px;color:var(--text-muted);}
 
-/* POPUP */
-.leaflet-popup-content-wrapper{background:var(--surface)!important;border:1px solid var(--border2)!important;border-radius:9px!important;box-shadow:0 10px 44px rgba(0,0,0,.65)!important;padding:0!important;min-width:282px;}
-.leaflet-popup-tip-container{width:20px!important;}
-.leaflet-popup-tip{background:var(--border2)!important;}
-.leaflet-popup-content{margin:0!important;width:auto!important;}
-.leaflet-container a.leaflet-popup-close-button{color:var(--text-muted)!important;top:10px!important;right:10px!important;font-size:18px!important;}
-.pu{padding:13px 15px;}
-.pu-hd{display:flex;align-items:center;gap:6px;margin-bottom:9px;flex-wrap:wrap;}
-.pu-cat{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;padding:3px 8px;border-radius:4px;color:#fff;}
-.pu-active{margin-left:auto;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;padding:2px 7px;border-radius:4px;color:#e87862;background:rgba(224,85,53,.14);}
-.pu-resolved{margin-left:auto;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;padding:2px 7px;border-radius:4px;color:#3aad68;background:rgba(58,173,104,.14);}
-.pu-photo-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(80px, 1fr));gap:6px;margin-bottom:9px;}
-.pu-photo-thumb{width:100%;height:80px;object-fit:cover;border-radius:4px;cursor:pointer;border:1px solid var(--border);}
-.pu-noimg{height:52px;background:var(--surface2);border:1px dashed var(--border);border-radius:6px;margin-bottom:9px;display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:11px;}
-.pu-desc{font-size:12.5px;line-height:1.55;margin-bottom:9px;}
-.pu-meta{display:grid;grid-template-columns:auto 1fr;gap:3px 9px;font-size:11px;padding-top:8px;border-top:1px solid var(--border);margin-bottom:9px;}
-.mk{color:var(--text-dim);font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.3px;font-size:10px;text-transform:uppercase;padding-top:1px;}
-.mv{color:var(--text);font-family:'JetBrains Mono',monospace;font-size:10.5px;}
-.pu-acts{display:flex;gap:5px;}
-.bsm{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;padding:5px 10px;border-radius:4px;border:none;cursor:pointer;letter-spacing:.3px;}
-.bsm-edit{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
-.bsm-edit:hover{background:var(--surface3);}
-.bsm-del{background:rgba(224,85,53,.12);color:#e87862;border:1px solid rgba(224,85,53,.3);}
-.bsm-del:hover{background:rgba(224,85,53,.24);}
+/* MODALS */
+.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:2000;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.ov.open{display:flex;}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:10px;width:500px;max-width:95vw;max-height:90vh;overflow-y:auto;padding:20px;}
+.fg{margin-bottom:12px;}
+.fl{display:block;font-size:11px;font-weight:800;color:var(--text-muted);margin-bottom:4px;text-transform:uppercase;}
+.fc{width:100%;background:var(--surface2);border:1px solid var(--border);padding:8px;color:var(--text);border-radius:5px;}
 
-/* QR */
-#qr-wrap{display:flex;justify-content:center;padding:16px;background:#fff;border-radius:8px;margin-bottom:10px;min-height:196px;align-items:center;}
-.qr-hint{font-size:12px;color:var(--text-muted);line-height:1.6;text-align:center;}
+/* POPUP PHOTO GRID */
+.pu-photo-grid{display:grid;grid-template-columns:repeat(3, 1fr);gap:5px;margin:10px 0;}
+.pu-photo-thumb{width:100%;height:60px;object-fit:cover;border-radius:4px;cursor:pointer;border:1px solid var(--border2);}
 
-/* scrollbar */
-::-webkit-scrollbar{width:4px;}
-::-webkit-scrollbar-track{background:var(--surface);}
-::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
+#addbar{display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--accent);color:#000;font-weight:800;padding:10px 20px;border-radius:30px;z-index:1500;}
 
-/* leaflet dark */
-.leaflet-bar a{background:var(--surface2)!important;color:var(--text)!important;border-color:var(--border)!important;}
-.leaflet-bar a:hover{background:var(--surface3)!important;}
-
-@media(max-width:640px){#sidebar{display:none;}.tb-stats{display:none;}}
+@media(max-width:640px){#sidebar{display:none;}}
 </style>
 </head>
 <body>
 
 <div id="topbar">
-  <div class="tb-logo">🌊 KUMLUCA <span>Çevre İzleme Sistemi</span></div>
+  <div class="tb-logo">🌊 KUMLUCA <span>Çevre İzleme</span></div>
   <div class="tb-div"></div>
   <div class="tb-stats">
     <span class="spl spl-t" id="st-total">0 kayıt</span>
-    <span class="spl spl-a" id="st-active">0 aktif</span>
-    <span class="spl spl-d" id="st-done">0 düzeltildi</span>
   </div>
   <div class="tb-right">
     <span class="admin-badge" id="admin-badge">🔓 Admin</span>
     <button class="btn btn-ghost admin-only" id="add-btn" onclick="toggleAdd()">📍 Nokta Ekle</button>
-    <button class="btn btn-ghost" onclick="doExport()">⬇ JSON</button>
-    <button class="btn btn-ghost" onclick="openImport()">⬆ Aktar</button>
-    <button class="btn btn-ghost" onclick="openQR()">▦ QR Kod</button>
-    <div class="tb-div"></div>
-    <button class="btn btn-ghost" id="login-btn" onclick="openLogin()">🔐 Admin</button>
+    <button class="btn btn-ghost" id="login-btn" onclick="openLogin()">🔐 Admin Girişi</button>
   </div>
 </div>
 
 <div id="main">
   <div id="sidebar">
     <div class="sb-sec">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;">
-        <div class="sb-lbl" style="margin-bottom:0;">Harita Katmanı</div>
-        <button class="ovbtn" style="font-size:10px;padding:2px 8px;" onclick="openLayerMgr()">⚙ Yönet</button>
-      </div>
-      <div class="layer-btns" id="layer-btns-wrap"></div>
-      <div class="ov-btns" style="margin-top:6px;">
-        <div class="ovbtn" id="ovb-sinir"  onclick="toggleOverlay('sinir')">🔲 İlçe Sınırı</div>
-        <div class="ovbtn"    id="ovb-labels" onclick="toggleOverlay('labels')">🏷 Yer Adları</div>
+      <div class="sb-lbl">Harita Araçları</div>
+      <div class="ov-btns">
+        <div class="ovbtn" id="ovb-sinir" onclick="toggleOverlay('sinir')">🔲 İlçe Sınırı</div>
+        <div class="ovbtn" id="ovb-labels" onclick="toggleOverlay('labels')">🏷 Yer Adları</div>
       </div>
     </div>
     <div class="sb-sec">
-      <div class="sb-lbl">Kategoriler — Filtrele</div>
+      <div class="sb-lbl">Kategoriler</div>
       <div class="filter-wrap" id="fchips"></div>
     </div>
-    <div class="sb-sec" style="flex:1;overflow:hidden;display:flex;flex-direction:column;border-bottom:none;padding-bottom:0;">
+    <div class="sb-sec" style="flex:1;overflow:hidden;display:flex;flex-direction:column;">
       <div class="sb-lbl">Son Kayıtlar</div>
       <div id="incident-list"></div>
     </div>
@@ -213,261 +124,191 @@ textarea.fc{min-height:74px;resize:vertical;}
   <div id="map"></div>
 </div>
 
-<div id="addbar" onclick="toggleAdd()">✕ &nbsp;Haritaya tıklayarak konum seçin — İptal</div>
-
-<div class="ov" id="login-ov">
-  <div class="modal modal-sm">
-    <div class="mhd">
-      <span class="mhd-title">Admin Girişi</span>
-      <button class="mclose" onclick="closeOv('login-ov')">×</button>
-    </div>
-    <div class="mbd">
-      <div class="login-icon">🔐</div>
-      <div class="login-err" id="login-err">Kullanıcı adı veya şifre hatalı</div>
-      <div class="fg"><label class="fl">Kullanıcı Adı</label><input class="fc" type="text" id="l-user" placeholder="admin" autocomplete="username"></div>
-      <div class="fg"><label class="fl">Şifre</label><input class="fc" type="password" id="l-pass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
-      <p style="font-size:11px;color:var(--text-dim);line-height:1.6;margin-top:4px;">Kullanıcı adı: <code style="color:var(--accent);">admin</code> / Şifre: <code style="color:var(--accent);">Smtppl5862</code></p>
-    </div>
-    <div class="mft">
-      <button class="btn btn-ghost" onclick="closeOv('login-ov')">İptal</button>
-      <button class="btn btn-primary" onclick="doLogin()">🔓 Giriş Yap</button>
-    </div>
-  </div>
-</div>
+<div id="addbar" onclick="toggleAdd()">✕ Haritaya tıklayın - İptal etmek için buraya dokunun</div>
 
 <div class="ov" id="form-ov">
   <div class="modal">
-    <div class="mhd">
-      <span class="mhd-title" id="form-title">Yeni Çevre İhlali Kaydı</span>
-      <button class="mclose" onclick="closeOv('form-ov')">×</button>
+    <h3 id="form-title" style="margin-bottom:15px;">Yeni Kayıt</h3>
+    
+    <div class="fg">
+      <label class="fl">📸 Fotoğraflar</label>
+      <div class="photo-upload-area" onclick="document.getElementById('photo-input').click()">
+        <div>📷 Fotoğraf Seç (Max 5MB)</div>
+      </div>
+      <input type="file" id="photo-input" class="photo-input-hidden" accept="image/*" multiple onchange="handlePhotoSelect(this.files)">
+      <div id="photo-preview" class="photo-preview"></div>
     </div>
-    <div class="mbd">
-      <input type="hidden" id="fid">
-      
-      <div class="fg">
-        <label class="fl">📸 Fotoğraflar</label>
-        <div class="photo-upload-area" id="photo-upload-area" onclick="document.getElementById('photo-input').click()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
-          <div class="photo-upload-icon">📷</div>
-          <div class="photo-upload-text">Fotoğraf seçmek için tıklayın veya sürükleyip bırakın</div>
-          <div class="photo-upload-text" style="font-size:10px;margin-top:4px;">PNG, JPG, GIF, WebP (max 5MB)</div>
-        </div>
-        <input type="file" id="photo-input" class="photo-input-hidden" accept="image/jpeg,image/png,image/gif,image/webp" multiple onchange="handlePhotoSelect(this.files)">
-        <div id="photo-preview" class="photo-preview"></div>
-      </div>
-      
-      <div class="fg"><label class="fl">Kategori</label><select class="fc" id="fcat"></select></div>
-      <div class="fg"><label class="fl">Açıklama</label><textarea class="fc" id="fdesc" placeholder="İhlalin detaylı açıklaması…"></textarea></div>
-      <div class="frow">
-        <div class="fg"><label class="fl">Tespit Tarihi</label><input type="date" class="fc" id="fdate"></div>
-        <div class="fg"><label class="fl">Mevki / Adres Notu</label><input type="text" class="fc" id="floc" placeholder="Mahalle, yol kenarı, plaj…"></div>
-      </div>
-      <div class="fg">
-        <label class="fl">Durum</label>
-        <div class="tog-row">
-          <label class="tog"><input type="checkbox" id="factive" checked onchange="onToggleActive()"><span class="tog-sl"></span></label>
-          <span class="tog-lbl" id="flbl">🔴 Aktif / Devam Ediyor</span>
-        </div>
-      </div>
-      <div class="fg" id="fres-grp" style="display:none;"><label class="fl">Düzeltilme Tarihi</label><input type="date" class="fc" id="fresdate"></div>
-      <div class="frow">
-        <div class="fg"><label class="fl">Raporlayan</label><input type="text" class="fc" id="freporter" placeholder="İsim / Kurum"></div>
-        <div class="fg"><label class="fl">Şiddet (1–5)</label>
-          <select class="fc" id="fsev">
-            <option value="1">1 — Düşük</option><option value="2">2 — Orta-Düşük</option>
-            <option value="3" selected>3 — Orta</option><option value="4">4 — Yüksek</option>
-            <option value="5">5 — Kritik</option>
-          </select>
-        </div>
-      </div>
-    </div>
-    <div class="mft">
+
+    <div class="fg"><label class="fl">Kategori</label><select class="fc" id="fcat"></select></div>
+    <div class="fg"><label class="fl">Açıklama</label><textarea class="fc" id="fdesc" rows="3"></textarea></div>
+    <div class="fg"><label class="fl">Tarih</label><input type="date" class="fc" id="fdate"></div>
+    
+    <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:20px;">
       <button class="btn btn-ghost" onclick="closeOv('form-ov')">İptal</button>
       <button class="btn btn-primary" onclick="saveInc()">💾 Kaydet</button>
     </div>
   </div>
 </div>
 
+<div class="ov" id="login-ov">
+  <div class="modal" style="width:300px;">
+    <h3 style="margin-bottom:15px;">Giriş</h3>
+    <input type="text" id="l-user" class="fc fg" placeholder="Kullanıcı Adı (admin)">
+    <input type="password" id="l-pass" class="fc fg" placeholder="Şifre">
+    <button class="btn btn-primary" style="width:100%" onclick="doLogin()">Giriş Yap</button>
+  </div>
+</div>
+
 <script>
-// KATEGORİLER
 const CATS=[
-  {id:'cop',       label:'Çöp / Evsel Atık',         icon:'🗑️', color:'#e05535'},
-  {id:'kati',    label:'Katı Atık',                 icon:'♻️', color:'#d46a1a'},
-  {id:'cam',     label:'Cam Atığı',                 icon:'🪟', color:'#6aaad4'},
-  {id:'insaat',  label:'İnşaat Artığı',             icon:'🏗️', color:'#a08055'},
-  {id:'sera',    label:'Sera Artığı (plastik)',     icon:'🏚️', color:'#55bb65'},
-  {id:'desarj',  label:'Deşarj Noktası',             icon:'💧', color:'#2d80e0'},
-  {id:'plastik', label:'Plastik / Ambalaj',         icon:'🧴', color:'#d83878'},
-  {id:'kimyasal',label:'Kimyasal / Zirai İlaç',    icon:'☣️', color:'#b828c0'},
-  {id:'yanmis',  label:'Yanmış Alan / Anız',         icon:'🔥', color:'#e86010'},
-  {id:'kacak',   label:'Kaçak Döküm Alanı',         icon:'🚮', color:'#c03040'},
-  {id:'su',      label:'Kirlenmiş Water Source',     icon:'🌊', color:'#18a0c8'},
-  {id:'yangin',  label:'Yangın Riski (ot/çalı)',   icon:'🌿', color:'#e8a000'},
-  {id:'arac',    label:'Terk Edilmiş Araç/Makine', icon:'🚗', color:'#7888a0'},
-  {id:'sanayi',  label:'Sanayi / Endüstriyel',     icon:'🏭', color:'#508850'},
-  {id:'deniz',   label:'Deniz Kirliliği',           icon:'🌊', color:'#2a9d8f'},
-  {id:'sintine', label:'Sintine Deşarjı',           icon:'⛽', color:'#e76f51'}
+  {id:'cop', label:'Çöp / Evsel Atık', icon:'🗑️', color:'#e05535'},
+  {id:'deniz', label:'Deniz Kirliliği', icon:'🌊', color:'#2a9d8f'},
+  {id:'sera', label:'Sera Artığı', icon:'🏚️', color:'#55bb65'},
+  {id:'sanayi', label:'Sanayi Atığı', icon:'🏭', color:'#508850'}
 ];
-const CMAP={};
-CATS.forEach(c=>CMAP[c.id]=c);
+const CMAP={}; CATS.forEach(c=>CMAP[c.id]=c);
 
-// STATE
-let data=[], mkrs={}, addMode=false, pendLL=null, editId=null;
-let activeF=new Set(CATS.map(c=>c.id));
-let isAdmin=false;
-let activeOV=new Set(); // Varsayılan olarak sınır kapalı (sistemde görünmeme sorunu için)
-let currentPhotos=[];
+let data=[], mkrs={}, addMode=false, pendLL=null, isAdmin=false, currentPhotos=[];
+const DATA_KEY='kumluca_env_v3';
 
-// STORAGE
-const DATA_KEY='kumluca_env_v2';
-function loadData(){try{const s=localStorage.getItem(DATA_KEY);if(s)data=JSON.parse(s);}catch(e){data=[];}}
-function saveData(){try{localStorage.setItem(DATA_KEY,JSON.stringify(data));}catch(e){}}
-
-// MAP
+// MAP INIT
 const map=L.map('map',{center:[36.368,30.290],zoom:12,zoomControl:false});
-L.control.zoom({position:'topright'}).addTo(map);
-
-const baseLyr = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OSM'}).addTo(map);
-const OV_LABELS=L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png',{subdomains:'abcd',maxZoom:20});
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+const OV_LABELS=L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png');
 let boundaryLyr=null;
 
-// KUMLUCA SINIRLARI - VURGULAMA KALDIRILDI VE ALT KATMANA ALINDI
-function loadKumlucaBoundary(){
-  const overpassUrl = 'https://overpass-api.de/api/interpreter?data=[out:json];relation(5911739);out geom;';
-  fetch(overpassUrl)
-    .then(r=>r.json())
-    .then(data=>{
-      if(data && data.elements && data.elements[0]){
-        const relation = data.elements[0];
-        if(relation.geometry){
-          const coords = relation.geometry.map(p=>[p.lat, p.lon]);
-          boundaryLyr = L.polygon(coords, {
-            color: 'transparent', // Vurgu tamamen kaldırıldı
-            weight: 0,
-            fillColor: 'transparent',
-            fillOpacity: 0,
-            interactive: false // Alttaki nesnelere tıklanmasını engellemez
-          }).addTo(map);
-          boundaryLyr.bringToBack(); // Diğer tüm verilerin altına itildi
-          map.fitBounds(boundaryLyr.getBounds());
-        }
-      }
-    });
+// KUMLUCA BOUNDARY (Vurgu kapalı, nesne görünürlüğü açık)
+function loadBoundary(){
+  fetch('https://overpass-api.de/api/interpreter?data=[out:json];relation(5911739);out geom;')
+  .then(r=>r.json()).then(res=>{
+    if(res.elements[0]){
+      const coords = res.elements[0].geometry.map(p=>[p.lat, p.lon]);
+      boundaryLyr = L.polygon(coords, {
+        color: 'transparent', weight: 0, fillColor: 'transparent', fillOpacity: 0, interactive: false
+      }).addTo(map);
+      boundaryLyr.bringToBack();
+      map.fitBounds(boundaryLyr.getBounds());
+    }
+  });
 }
 
-// UI HANDLERS
-function toggleOverlay(name){
-  if(name==='labels'){
-    if(map.hasLayer(OV_LABELS)) map.removeLayer(OV_LABELS);
-    else OV_LABELS.addTo(map);
+// PHOTO HANDLING
+function handlePhotoSelect(files){
+  for(let file of files){
+    if(file.size > 5*1024*1024) continue;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      currentPhotos.push(e.target.result);
+      renderPhotoPreview();
+    };
+    reader.readAsDataURL(file);
   }
-  if(name==='sinir' && boundaryLyr){
-    // Sınır çizgisi görünürlük toggle (eğer kullanıcı çizgiyi tekrar görmek isterse)
-    const isVisible = boundaryLyr.options.color !== 'transparent';
-    boundaryLyr.setStyle({
-      color: isVisible ? 'transparent' : '#e8a020',
-      weight: isVisible ? 0 : 3,
-      fillOpacity: isVisible ? 0 : 0.05
-    });
-  }
-  document.getElementById('ovb-'+name).classList.toggle('on');
 }
 
-// AUTH & CRUD (Simplified for the full file request)
-function openLogin(){ document.getElementById('login-ov').classList.add('open'); }
-function doLogin(){
-  const u=document.getElementById('l-user').value;
-  const p=document.getElementById('l-pass').value;
-  if(u==='admin' && p==='Smtppl5862'){
-    isAdmin=true; document.body.classList.add('admin-mode');
-    document.getElementById('admin-badge').classList.add('on');
-    closeOv('login-ov');
-  } else { alert('Hata!'); }
+function renderPhotoPreview(){
+  const container = document.getElementById('photo-preview');
+  container.innerHTML = currentPhotos.map((p,idx)=>`
+    <div class="photo-preview-item">
+      <img src="${p}">
+      <div class="photo-preview-remove" onclick="removePhoto(${idx})">×</div>
+    </div>
+  `).join('');
 }
 
+function removePhoto(idx){ currentPhotos.splice(idx,1); renderPhotoPreview(); }
+
+// UI & LOGIC
 function toggleAdd(){
-  if(!isAdmin) return;
+  if(!isAdmin) return alert('Admin girişi gerekli!');
   addMode=!addMode;
   document.getElementById('addbar').style.display=addMode?'block':'none';
   document.getElementById('map').classList.toggle('addmode', addMode);
 }
 
-map.on('click', e => {
-  if(!addMode) return;
-  pendLL = e.latlng;
-  openForm();
-});
+map.on('click', e=>{ if(addMode){ pendLL=e.latlng; openForm(); }});
 
-function openForm(id){
-  editId=id||null;
-  initCatSel();
+function openForm(){
+  currentPhotos=[]; renderPhotoPreview();
+  document.getElementById('fdate').value = new Date().toISOString().split('T')[0];
   document.getElementById('form-ov').classList.add('open');
-}
-
-function initCatSel(){
-  const s=document.getElementById('fcat'); s.innerHTML='';
-  CATS.forEach(c=>{const o=document.createElement('option'); o.value=c.id; o.textContent=`${c.icon} ${c.label}`; s.appendChild(o);});
 }
 
 function saveInc(){
   const inc = {
-    id: editId || Date.now().toString(),
-    lat: pendLL.lat, lng: pendLL.lng,
+    id: Date.now(), lat: pendLL.lat, lng: pendLL.lng,
     category: document.getElementById('fcat').value,
     description: document.getElementById('fdesc').value,
     date: document.getElementById('fdate').value,
-    active: document.getElementById('factive').checked,
-    createdAt: new Date().toISOString()
+    photos: [...currentPhotos]
   };
-  if(editId) data = data.filter(x=>x.id!==editId);
   data.push(inc);
-  saveData(); renderMkrs(); renderList(); updateStats();
+  localStorage.setItem(DATA_KEY, JSON.stringify(data));
+  renderMkrs(); renderList(); updateStats();
   closeOv('form-ov'); toggleAdd();
 }
 
 function renderMkrs(){
   Object.values(mkrs).forEach(m=>map.removeLayer(m));
-  mkrs={};
   data.forEach(inc=>{
-    if(activeF.has(inc.category)){
-      const m = L.marker([inc.lat, inc.lng]).addTo(map);
-      m.bindPopup(`<b>${CMAP[inc.category].label}</b><br>${inc.description}`);
-      mkrs[inc.id] = m;
+    const m = L.marker([inc.lat, inc.lng]).addTo(map);
+    let html = `<b>${CMAP[inc.category].label}</b><br>${inc.description}`;
+    if(inc.photos?.length > 0){
+      html += `<div class="pu-photo-grid">${inc.photos.map(p=>`<img src="${p}" class="pu-photo-thumb" onclick="window.open('${p}')">`).join('')}</div>`;
     }
+    m.bindPopup(html);
+    mkrs[inc.id] = m;
   });
+}
+
+function toggleOverlay(name){
+  if(name==='labels'){
+    if(map.hasLayer(OV_LABELS)) map.removeLayer(OV_LABELS); else OV_LABELS.addTo(map);
+  }
+  if(name==='sinir' && boundaryLyr){
+    const isOff = boundaryLyr.options.color === 'transparent';
+    boundaryLyr.setStyle({color: isOff?'#e8a020':'transparent', weight: isOff?2:0});
+  }
+  document.getElementById('ovb-'+name).classList.toggle('on');
+}
+
+function doLogin(){
+  const u=document.getElementById('l-user').value;
+  const p=document.getElementById('l-pass').value;
+  if(u==='admin' && p==='Smtppl5862'){
+    isAdmin=true; document.body.classList.add('admin-mode');
+    document.getElementById('admin-badge').style.display='block';
+    closeOv('login-ov');
+  }
 }
 
 function renderList(){
   const c=document.getElementById('incident-list'); c.innerHTML='';
-  data.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt)).forEach(inc=>{
+  data.forEach(inc=>{
     const d=document.createElement('div'); d.className='inc-item';
-    d.innerHTML=`<b>${CMAP[inc.category].icon} ${CMAP[inc.category].label}</b><br><small>${inc.description}</small>`;
+    d.innerHTML=`<b>${CMAP[inc.category].icon} ${CMAP[inc.category].label}</b><br><small>${inc.date}</small>`;
     d.onclick=()=>map.setView([inc.lat, inc.lng], 15);
     c.appendChild(d);
   });
 }
 
-function updateStats(){
-  document.getElementById('st-total').textContent=`${data.length} kayıt`;
-}
-
+function updateStats(){ document.getElementById('st-total').textContent=`${data.length} kayıt`; }
 function closeOv(id){ document.getElementById(id).classList.remove('open'); }
 
 function init(){
-  loadData();
-  loadKumlucaBoundary();
-  renderMkrs();
-  renderList();
-  updateStats();
-  // Kategori chiplerini oluştur
+  const s=JSON.parse(localStorage.getItem(DATA_KEY)||'[]'); data=s;
+  loadBoundary();
   const f=document.getElementById('fchips');
+  const sel=document.getElementById('fcat');
   CATS.forEach(c=>{
-    const s=document.createElement('div'); s.className='fchip on'; s.textContent=`${c.icon} ${c.id}`;
-    f.appendChild(s);
+    const chip=document.createElement('div'); chip.className='fchip on'; chip.style.background=c.color; chip.textContent=c.label;
+    f.appendChild(chip);
+    const opt=document.createElement('option'); opt.value=c.id; opt.textContent=c.label;
+    sel.appendChild(opt);
   });
+  renderMkrs(); renderList(); updateStats();
 }
 
 window.onload = init;
-
 </script>
 </body>
 </html>
