@@ -3,312 +3,38 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kumluca Çevre İzleme Sistemi</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-:root{
-  --bg:#0c1014;--surface:#141b22;--surface2:#1b2530;--surface3:#222f3e;
-  --border:#2c3e50;--border2:#3d5166;
-  --text:#dde6ee;--text-muted:#7c96a8;--text-dim:#4a6070;
-  --accent:#e8a020;--danger:#e05535;--success:#3aad68;--marine:#2a9d8f;
-}
-*{margin:0;padding:0;box-sizing:border-box;}
-html,body{height:100%;overflow:hidden;}
-body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;}
-
-/* TOPBAR */
-#topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 12px;height:50px;display:flex;align-items:center;gap:10px;flex-shrink:0;z-index:900;}
-.tb-logo{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:17px;letter-spacing:.6px;color:var(--accent);white-space:nowrap;display:flex;align-items:center;gap:7px;}
-.tb-logo span{color:var(--text-muted);font-weight:600;font-size:14px;}
-.tb-div{width:1px;height:26px;background:var(--border);flex-shrink:0;}
-.tb-stats{display:flex;gap:6px;}
-.spl{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:.4px;padding:3px 9px;border-radius:20px;}
-.spl-t{background:var(--surface3);color:var(--text);border:1px solid var(--border2);}
-.spl-a{background:rgba(224,85,53,.14);color:#e87862;border:1px solid rgba(224,85,53,.35);}
-.tb-right{margin-left:auto;display:flex;gap:5px;align-items:center;}
-.admin-badge{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;padding:3px 9px;border-radius:4px;background:rgba(232,160,32,.18);color:var(--accent);border:1px solid rgba(232,160,32,.4);display:none;}
-.admin-badge.on{display:flex;}
-
-/* BUTTONS */
-.btn{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12.5px;padding:5px 11px;border-radius:5px;border:none;cursor:pointer;transition:all .14s;display:flex;align-items:center;gap:5px;}
-.btn-primary{background:var(--accent);color:#000;}
-.btn-ghost{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
-.btn-active{background:rgba(232,160,32,.18);color:var(--accent);border:1px solid var(--accent)!important;}
-
-/* Admin-only */
-.admin-only{display:none!important;}
-body.admin-mode .admin-only{display:flex!important;}
-
-#main{display:flex;flex:1;overflow:hidden;}
-
-/* SIDEBAR */
-#sidebar{width:252px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;}
-.sb-sec{padding:10px 11px;border-bottom:1px solid var(--border);}
-.sb-lbl{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:800;letter-spacing:1.2px;color:var(--text-dim);text-transform:uppercase;margin-bottom:7px;}
-.ovbtn{font-family:'Barlow Condensed',sans-serif;font-size:10.5px;font-weight:700;padding:3px 8px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text-muted);cursor:pointer;}
-.ovbtn.on{background:rgba(232,160,32,.1);color:var(--accent);border-color:var(--accent);}
-
-.filter-wrap{display:flex;flex-wrap:wrap;gap:4px;max-height:200px;overflow-y:auto;}
-.fchip{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;padding:2px 7px;border-radius:4px;cursor:pointer;opacity:0.3;}
-.fchip.on{opacity:1;}
-
-#incident-list{flex:1;overflow-y:auto;padding:7px;}
-.inc-item{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 9px;margin-bottom:5px;cursor:pointer;}
-
-/* MAP */
-#map{flex:1;}
-#map.addmode{cursor:crosshair!important;}
-
-/* PHOTO UPLOAD AREA */
-.photo-upload-area{border:2px dashed var(--border);border-radius:8px;background:var(--surface2);padding:15px;text-align:center;cursor:pointer;margin-bottom:12px;}
-.photo-upload-area:hover{border-color:var(--accent);}
-.photo-preview{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;justify-content:center;}
-.photo-preview-item{position:relative;width:70px;height:70px;border-radius:6px;overflow:hidden;border:2px solid var(--border);}
-.photo-preview-item img{width:100%;height:100%;object-fit:cover;}
-.photo-preview-remove{position:absolute;top:0;right:0;background:var(--danger);color:white;width:18px;height:18px;font-size:12px;text-align:center;cursor:pointer;}
-.photo-input-hidden{display:none;}
-
-/* MODALS */
-.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:2000;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
-.ov.open{display:flex;}
-.modal{background:var(--surface);border:1px solid var(--border);border-radius:10px;width:500px;max-width:95vw;max-height:90vh;overflow-y:auto;padding:20px;}
-.fg{margin-bottom:12px;}
-.fl{display:block;font-size:11px;font-weight:800;color:var(--text-muted);margin-bottom:4px;text-transform:uppercase;}
-.fc{width:100%;background:var(--surface2);border:1px solid var(--border);padding:8px;color:var(--text);border-radius:5px;}
-
-/* POPUP PHOTO GRID */
-.pu-photo-grid{display:grid;grid-template-columns:repeat(3, 1fr);gap:5px;margin:10px 0;}
-.pu-photo-thumb{width:100%;height:60px;object-fit:cover;border-radius:4px;cursor:pointer;border:1px solid var(--border2);}
-
-#addbar{display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--accent);color:#000;font-weight:800;padding:10px 20px;border-radius:30px;z-index:1500;}
-
-@media(max-width:640px){#sidebar{display:none;}}
-</style>
+<title>Kumluca Çevre İzleme</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 </head>
 <body>
 
-<div id="topbar">
-  <div class="tb-logo">🌊 KUMLUCA <span>Çevre İzleme</span></div>
-  <div class="tb-div"></div>
-  <div class="tb-stats">
-    <span class="spl spl-t" id="st-total">0 kayıt</span>
-  </div>
-  <div class="tb-right">
-    <span class="admin-badge" id="admin-badge">🔓 Admin</span>
-    <button class="btn btn-ghost admin-only" id="add-btn" onclick="toggleAdd()">📍 Nokta Ekle</button>
-    <button class="btn btn-ghost" id="login-btn" onclick="openLogin()">🔐 Admin Girişi</button>
-  </div>
+<h1>Kumluca Çevre İzleme</h1>
+
+<div id="form">
+  <label>Kategori:</label>
+  <select id="kategori">
+    <option>Sera Atığı</option>
+    <option>Kaçak Döküm</option>
+    <option>Kirlenmiş Su</option>
+  </select><br>
+
+  <label>Açıklama:</label>
+  <input type="text" id="aciklama"><br>
+
+  <label>Koordinat (lat,lng):</label>
+  <input type="number" id="lat" placeholder="Enlem" step="0.000001">
+  <input type="number" id="lng" placeholder="Boylam" step="0.000001"><br>
+
+  <label>Fotoğraf Yükle:</label>
+  <input type="file" id="photoInput" accept="image/*"><br>
+
+  <button onclick="submitData()">Kaydet</button>
 </div>
 
-<div id="main">
-  <div id="sidebar">
-    <div class="sb-sec">
-      <div class="sb-lbl">Harita Araçları</div>
-      <div class="ov-btns">
-        <div class="ovbtn" id="ovb-sinir" onclick="toggleOverlay('sinir')">🔲 İlçe Sınırı</div>
-        <div class="ovbtn" id="ovb-labels" onclick="toggleOverlay('labels')">🏷 Yer Adları</div>
-      </div>
-    </div>
-    <div class="sb-sec">
-      <div class="sb-lbl">Kategoriler</div>
-      <div class="filter-wrap" id="fchips"></div>
-    </div>
-    <div class="sb-sec" style="flex:1;overflow:hidden;display:flex;flex-direction:column;">
-      <div class="sb-lbl">Son Kayıtlar</div>
-      <div id="incident-list"></div>
-    </div>
-  </div>
-  <div id="map"></div>
-</div>
+<div id="map" style="height:600px;margin-top:20px;"></div>
 
-<div id="addbar" onclick="toggleAdd()">✕ Haritaya tıklayın - İptal etmek için buraya dokunun</div>
-
-<div class="ov" id="form-ov">
-  <div class="modal">
-    <h3 id="form-title" style="margin-bottom:15px;">Yeni Kayıt</h3>
-    
-    <div class="fg">
-      <label class="fl">📸 Fotoğraflar</label>
-      <div class="photo-upload-area" onclick="document.getElementById('photo-input').click()">
-        <div>📷 Fotoğraf Seç (Max 5MB)</div>
-      </div>
-      <input type="file" id="photo-input" class="photo-input-hidden" accept="image/*" multiple onchange="handlePhotoSelect(this.files)">
-      <div id="photo-preview" class="photo-preview"></div>
-    </div>
-
-    <div class="fg"><label class="fl">Kategori</label><select class="fc" id="fcat"></select></div>
-    <div class="fg"><label class="fl">Açıklama</label><textarea class="fc" id="fdesc" rows="3"></textarea></div>
-    <div class="fg"><label class="fl">Tarih</label><input type="date" class="fc" id="fdate"></div>
-    
-    <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:20px;">
-      <button class="btn btn-ghost" onclick="closeOv('form-ov')">İptal</button>
-      <button class="btn btn-primary" onclick="saveInc()">💾 Kaydet</button>
-    </div>
-  </div>
-</div>
-
-<div class="ov" id="login-ov">
-  <div class="modal" style="width:300px;">
-    <h3 style="margin-bottom:15px;">Giriş</h3>
-    <input type="text" id="l-user" class="fc fg" placeholder="Kullanıcı Adı (admin)">
-    <input type="password" id="l-pass" class="fc fg" placeholder="Şifre">
-    <button class="btn btn-primary" style="width:100%" onclick="doLogin()">Giriş Yap</button>
-  </div>
-</div>
-
-<script>
-const CATS=[
-  {id:'cop', label:'Çöp / Evsel Atık', icon:'🗑️', color:'#e05535'},
-  {id:'deniz', label:'Deniz Kirliliği', icon:'🌊', color:'#2a9d8f'},
-  {id:'sera', label:'Sera Artığı', icon:'🏚️', color:'#55bb65'},
-  {id:'sanayi', label:'Sanayi Atığı', icon:'🏭', color:'#508850'}
-];
-const CMAP={}; CATS.forEach(c=>CMAP[c.id]=c);
-
-let data=[], mkrs={}, addMode=false, pendLL=null, isAdmin=false, currentPhotos=[];
-const DATA_KEY='kumluca_env_v3';
-
-// MAP INIT
-const map=L.map('map',{center:[36.368,30.290],zoom:12,zoomControl:false});
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-const OV_LABELS=L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png');
-let boundaryLyr=null;
-
-// KUMLUCA BOUNDARY (Vurgu kapalı, nesne görünürlüğü açık)
-function loadBoundary(){
-  fetch('https://overpass-api.de/api/interpreter?data=[out:json];relation(5911739);out geom;')
-  .then(r=>r.json()).then(res=>{
-    if(res.elements[0]){
-      const coords = res.elements[0].geometry.map(p=>[p.lat, p.lon]);
-      boundaryLyr = L.polygon(coords, {
-        color: 'transparent', weight: 0, fillColor: 'transparent', fillOpacity: 0, interactive: false
-      }).addTo(map);
-      boundaryLyr.bringToBack();
-      map.fitBounds(boundaryLyr.getBounds());
-    }
-  });
-}
-
-// PHOTO HANDLING
-function handlePhotoSelect(files){
-  for(let file of files){
-    if(file.size > 5*1024*1024) continue;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      currentPhotos.push(e.target.result);
-      renderPhotoPreview();
-    };
-    reader.readAsDataURL(file);
-  }
-}
-
-function renderPhotoPreview(){
-  const container = document.getElementById('photo-preview');
-  container.innerHTML = currentPhotos.map((p,idx)=>`
-    <div class="photo-preview-item">
-      <img src="${p}">
-      <div class="photo-preview-remove" onclick="removePhoto(${idx})">×</div>
-    </div>
-  `).join('');
-}
-
-function removePhoto(idx){ currentPhotos.splice(idx,1); renderPhotoPreview(); }
-
-// UI & LOGIC
-function toggleAdd(){
-  if(!isAdmin) return alert('Admin girişi gerekli!');
-  addMode=!addMode;
-  document.getElementById('addbar').style.display=addMode?'block':'none';
-  document.getElementById('map').classList.toggle('addmode', addMode);
-}
-
-map.on('click', e=>{ if(addMode){ pendLL=e.latlng; openForm(); }});
-
-function openForm(){
-  currentPhotos=[]; renderPhotoPreview();
-  document.getElementById('fdate').value = new Date().toISOString().split('T')[0];
-  document.getElementById('form-ov').classList.add('open');
-}
-
-function saveInc(){
-  const inc = {
-    id: Date.now(), lat: pendLL.lat, lng: pendLL.lng,
-    category: document.getElementById('fcat').value,
-    description: document.getElementById('fdesc').value,
-    date: document.getElementById('fdate').value,
-    photos: [...currentPhotos]
-  };
-  data.push(inc);
-  localStorage.setItem(DATA_KEY, JSON.stringify(data));
-  renderMkrs(); renderList(); updateStats();
-  closeOv('form-ov'); toggleAdd();
-}
-
-function renderMkrs(){
-  Object.values(mkrs).forEach(m=>map.removeLayer(m));
-  data.forEach(inc=>{
-    const m = L.marker([inc.lat, inc.lng]).addTo(map);
-    let html = `<b>${CMAP[inc.category].label}</b><br>${inc.description}`;
-    if(inc.photos?.length > 0){
-      html += `<div class="pu-photo-grid">${inc.photos.map(p=>`<img src="${p}" class="pu-photo-thumb" onclick="window.open('${p}')">`).join('')}</div>`;
-    }
-    m.bindPopup(html);
-    mkrs[inc.id] = m;
-  });
-}
-
-function toggleOverlay(name){
-  if(name==='labels'){
-    if(map.hasLayer(OV_LABELS)) map.removeLayer(OV_LABELS); else OV_LABELS.addTo(map);
-  }
-  if(name==='sinir' && boundaryLyr){
-    const isOff = boundaryLyr.options.color === 'transparent';
-    boundaryLyr.setStyle({color: isOff?'#e8a020':'transparent', weight: isOff?2:0});
-  }
-  document.getElementById('ovb-'+name).classList.toggle('on');
-}
-
-function doLogin(){
-  const u=document.getElementById('l-user').value;
-  const p=document.getElementById('l-pass').value;
-  if(u==='admin' && p==='Smtppl5862'){
-    isAdmin=true; document.body.classList.add('admin-mode');
-    document.getElementById('admin-badge').style.display='block';
-    closeOv('login-ov');
-  }
-}
-
-function renderList(){
-  const c=document.getElementById('incident-list'); c.innerHTML='';
-  data.forEach(inc=>{
-    const d=document.createElement('div'); d.className='inc-item';
-    d.innerHTML=`<b>${CMAP[inc.category].icon} ${CMAP[inc.category].label}</b><br><small>${inc.date}</small>`;
-    d.onclick=()=>map.setView([inc.lat, inc.lng], 15);
-    c.appendChild(d);
-  });
-}
-
-function updateStats(){ document.getElementById('st-total').textContent=`${data.length} kayıt`; }
-function closeOv(id){ document.getElementById(id).classList.remove('open'); }
-
-function init(){
-  const s=JSON.parse(localStorage.getItem(DATA_KEY)||'[]'); data=s;
-  loadBoundary();
-  const f=document.getElementById('fchips');
-  const sel=document.getElementById('fcat');
-  CATS.forEach(c=>{
-    const chip=document.createElement('div'); chip.className='fchip on'; chip.style.background=c.color; chip.textContent=c.label;
-    f.appendChild(chip);
-    const opt=document.createElement('option'); opt.value=c.id; opt.textContent=c.label;
-    sel.appendChild(opt);
-  });
-  renderMkrs(); renderList(); updateStats();
-}
-
-window.onload = init;
-</script>
+<script src="script.js"></script>
 </body>
 </html>
