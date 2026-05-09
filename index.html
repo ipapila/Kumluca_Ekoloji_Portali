@@ -1,189 +1,67 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Kumluca Çevre İzleme Sistemi</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-/* AYNI STİLLER – değişmedi, sıkıştırmamak için burada tekrar etmiyorum */
-/* Siz mevcut style.css'deki stilleri buraya kopyalayabilirsiniz, ancak ben tam dosyada vereceğim */
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kumluca Ekoloji Portalı - Harita</title>
+    <!-- Leaflet CSS ve JS (CDN güncel) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #1a2a1f; color: #eee; }
+        header { background: #2c5e2e; padding: 15px; text-align: center; }
+        #map { height: 70vh; width: 100%; margin: 20px auto; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .info { background: #2c3e2a; padding: 15px; border-radius: 10px; margin-top: 20px; text-align: center; }
+        button { background: #e8a020; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        button:hover { background: #d48e10; }
+    </style>
 </head>
 <body>
-<!-- AYNI HTML YAPISI – sadece script kısmı tamamen değişti -->
-...
+<header>
+    <h1>🌿 Kumluca Ekoloji Portalı</h1>
+    <p>Çevre ihlallerini haritada görüntüleyin</p>
+</header>
+<div class="container">
+    <div id="map"></div>
+    <div class="info">
+        <p>Harita üzerinde işaretlenmiş çevre sorunlarını görmek için veri girişi yapılmalıdır.</p>
+        <button onclick="alert('Admin girişi yaparak veri ekleyebilirsiniz.')">Admin Girişi</button>
+    </div>
+</div>
+
 <script>
-// Firebase yok, tüm işlemler fetch ile /data endpoint'ine
-let data = [];
-let mkrs = {};
-let addMode = false;
-let pendLL = null;
-let editId = null;
-let viewMode = 'active';
-let activeF = new Set(); // doldurulacak
-let isAdmin = false;
-let photoBase64 = null;
-let photoTabMode = 'url';
-let editLocationMode = false;
-let editPendLL = null;
-let qrObj = null;
-let activeOV = new Set(['sinir']);
+    // Haritayı başlat (Kumluca merkez)
+    var map = L.map('map').setView([36.3691, 30.2867], 13);
 
-const CATS = [ /* aynı kategori listesi */ ];
-const CMAP = {};
-CATS.forEach(c => CMAP[c.id] = c);
-const RBYMAP = { /* aynı */ };
+    // Temel harita katmanı (OpenStreetMap)
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; CartoDB',
+        subdomains: 'abcd',
+        maxZoom: 19,
+        minZoom: 6
+    }).addTo(map);
 
-// ADMIN şifresi (client-side sadece UI içindir, asıl güvenlik sunucuda)
-let ADMIN_PASS = "1234";
+    // Test marker'ı (Kumluca merkeze bir işaret koyalım)
+    var marker = L.marker([36.3691, 30.2867]).addTo(map);
+    marker.bindPopup("<b>Kumluca Merkez</b><br>Portal aktif.").openPopup();
 
-// ------------------- SERVER İLETİŞİMİ -------------------
-async function fetchData() {
-  const res = await fetch("/data");
-  data = await res.json();
-  renderMkrs();
-  renderList();
-  if (viewMode === 'resolved') renderResolvedSidebar();
-  updateStats();
-}
-
-async function sendPost(entry) {
-  const res = await fetch("/data", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ password: ADMIN_PASS, ...entry })
-  });
-  if (!res.ok) throw new Error(await res.text());
-  await fetchData();
-}
-
-async function sendPut(id, updates) {
-  const res = await fetch(`/data/${id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ password: ADMIN_PASS, updates })
-  });
-  if (!res.ok) throw new Error(await res.text());
-  await fetchData();
-}
-
-async function sendDelete(id) {
-  const res = await fetch(`/data/${id}`, {
-    method: "DELETE",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ password: ADMIN_PASS })
-  });
-  if (!res.ok) throw new Error(await res.text());
-  await fetchData();
-}
-
-// ------------------- HARİTA, MARKER, POPUP (AYNI, sadece veri kaynağı data değişkeni) -------------------
-// ... (bu kısımlar orijinal HTML'dekiyle neredeyse birebir aynı, sadece fbEnabled kontrolü kalktı)
-// Aşağıda tam dosyada vereceğim için uzatmıyorum.
-
-// ------------------- FORM KAYDET (değiştirildi) -------------------
-async function saveInc() {
-  if (!isAdmin) return;
-  const cat = document.getElementById("fcat").value;
-  const desc = document.getElementById("fdesc").value.trim();
-  const date = document.getElementById("fdate").value;
-  const loc = document.getElementById("floc").value.trim();
-  const photo = photoTabMode === 'url' ? document.getElementById("fphoto").value.trim() : (photoBase64 || "");
-  const reporter = document.getElementById("freporter").value.trim();
-  const sev = document.getElementById("fsev").value;
-  if (!desc) { document.getElementById("fdesc").focus(); return; }
-
-  const saveBtn = document.getElementById("save-btn");
-  saveBtn.disabled = true;
-  saveBtn.textContent = "⏳ Kaydediliyor…";
-  try {
-    if (editId) {
-      const updates = {
-        category: cat, description: desc, date, location: loc, photo, reporter, severity: sev
-      };
-      if (editPendLL) { updates.lat = editPendLL.lat; updates.lng = editPendLL.lng; }
-      await sendPut(editId, updates);
-    } else {
-      if (!pendLL) throw new Error("Konum seçilmemiş");
-      await sendPost({
-        kategori: cat, aciklama: desc, lat: pendLL.lat, lng: pendLL.lng,
-        date, location: loc, photo, reporter, severity: sev
-      });
-    }
-    closeOv("form-ov");
-    pendLL = null; editPendLL = null;
-    if (addMode) toggleAdd();
-  } catch (e) { alert("Kayıt hatası: " + e.message); }
-  finally { saveBtn.disabled = false; saveBtn.innerHTML = "💾 Kaydet"; }
-}
-
-// ------------------- DİĞER FONKSİYONLAR (delInc, doResolve, reactivate vs.) hepsi sendDelete/sendPut kullanacak -------------------
-async function delInc(id) {
-  if (!isAdmin) return;
-  if (!confirm("Kalıcı olarak sil?")) return;
-  await sendDelete(id);
-  map.closePopup();
-}
-
-async function doResolve() {
-  const id = document.getElementById("resolve-id").value;
-  const rdate = document.getElementById("rdate").value;
-  const rby = document.getElementById("rby").value;
-  const rnote = document.getElementById("rnote").value.trim();
-  const rphoto = document.getElementById("rphoto-url").value.trim();
-  await sendPut(id, {
-    active: false, resolutionDate: rdate, resolvedBy: rby,
-    resolvedNote: rnote, resolvedPhoto: rphoto, resolvedAt: new Date().toISOString()
-  });
-  closeOv("resolve-ov");
-}
-
-async function reactivate(id) {
-  if (!isAdmin) return;
-  await sendPut(id, {
-    active: true, resolvedBy: "", resolvedNote: "", resolvedPhoto: "", resolvedAt: "", resolutionDate: ""
-  });
-  closeOv("resolved-list-ov");
-  map.closePopup();
-}
-
-async function clearAll() {
-  if (!isAdmin) return;
-  if (!confirm("TÜM kayıtlar silinecek. Onaylıyor musunuz?")) return;
-  const res = await fetch("/data", {
-    method: "DELETE",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ password: ADMIN_PASS })
-  });
-  if (res.ok) await fetchData();
-  else alert("Silme başarısız");
-  closeOv("admin-ov");
-}
-
-// ------------------- BAŞLANGIÇ -------------------
-function init() {
-  // Kategorileri doldur
-  initChips(); initCatSel(); initPhotoDrop();
-  rebuildLeafletLayers(); renderLayerBtns();
-  // Verileri yükle
-  fetchData().catch(e => console.error(e));
-  // Olay dinleyicileri
-  document.querySelectorAll('.ov').forEach(o => {
-    o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); });
-  });
-  // Admin butonları
-  document.getElementById("login-btn").onclick = openLogin;
-  document.getElementById("add-btn").onclick = () => toggleAdd();
-  document.getElementById("active-btn").onclick = () => setViewMode('active');
-  document.getElementById("resolved-btn").onclick = () => setViewMode('resolved');
-  // ... diğer bağlantılar (önceki kodla aynı)
-}
-if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
-else init();
+    // Eğer daha önce kaydedilmiş veriler varsa onları da göster (opsiyonel)
+    fetch('/data')
+        .then(res => res.json())
+        .then(data => {
+            if (data && data.length) {
+                data.forEach(inc => {
+                    if (inc.active !== false && inc.lat && inc.lng) {
+                        L.marker([inc.lat, inc.lng])
+                            .addTo(map)
+                            .bindPopup(`<b>${inc.category || 'İhlal'}</b><br>${inc.description || ''}`);
+                    }
+                });
+            }
+        })
+        .catch(err => console.log("Veri yüklenemedi:", err));
 </script>
 </body>
 </html>
