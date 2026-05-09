@@ -1,67 +1,489 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kumluca Ekoloji Portalı - Harita</title>
-    <!-- Leaflet CSS ve JS (CDN güncel) -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; background: #1a2a1f; color: #eee; }
-        header { background: #2c5e2e; padding: 15px; text-align: center; }
-        #map { height: 70vh; width: 100%; margin: 20px auto; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
-        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-        .info { background: #2c3e2a; padding: 15px; border-radius: 10px; margin-top: 20px; text-align: center; }
-        button { background: #e8a020; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; }
-        button:hover { background: #d48e10; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Kumluca Çevre İzleme Sistemi</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0c1014;--surface:#141b22;--surface2:#1b2530;--surface3:#222f3e;
+  --border:#2c3e50;--border2:#3d5166;
+  --text:#dde6ee;--text-muted:#7c96a8;--text-dim:#4a6070;
+  --accent:#e8a020;--danger:#e05535;--success:#3aad68;
+  --sb-w:252px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;}
+
+#topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 10px;height:50px;display:flex;align-items:center;gap:8px;flex-shrink:0;z-index:900;overflow-x:auto;}
+.tb-logo{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:17px;color:var(--accent);white-space:nowrap;}
+.tb-stats{display:flex;gap:5px;align-items:center;}
+.spl{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;padding:3px 8px;border-radius:20px;background:var(--surface3);color:var(--text);border:1px solid var(--border2);}
+.tb-right{margin-left:auto;display:flex;gap:5px;align-items:center;}
+.admin-badge{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;padding:3px 9px;border-radius:4px;background:rgba(232,160,32,.18);color:var(--accent);border:1px solid rgba(232,160,32,.4);display:none;}
+.admin-badge.on{display:flex;}
+.btn{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:.4px;padding:5px 11px;border-radius:5px;border:none;cursor:pointer;background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-primary{background:var(--accent);color:#000;}
+.btn-active{background:rgba(232,160,32,.18);color:var(--accent);border-color:rgba(232,160,32,.45);}
+.admin-only{display:none;}
+body.admin-mode .admin-only{display:inline-flex;}
+
+#main{display:flex;flex:1;overflow:hidden;}
+#sidebar{width:var(--sb-w);background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;}
+.sb-sec{padding:10px 11px;border-bottom:1px solid var(--border);}
+.sb-lbl{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:800;letter-spacing:1.2px;color:var(--text-dim);text-transform:uppercase;margin-bottom:7px;}
+.filter-wrap{display:flex;flex-wrap:wrap;gap:4px;}
+.fchip{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;padding:2px 7px;border-radius:4px;cursor:pointer;border:1px solid transparent;}
+.fchip.on{opacity:1;background:rgba(232,160,32,.14);color:var(--accent);border-color:rgba(232,160,32,.4);}
+.fchip.off{opacity:0.4;}
+#incident-list{flex:1;overflow-y:auto;padding:7px;}
+.inc-item{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 9px;margin-bottom:5px;cursor:pointer;}
+.inc-item:hover{background:var(--surface3);}
+.inc-hd{display:flex;align-items:center;gap:5px;margin-bottom:3px;}
+.inc-badge{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;padding:1px 5px;border-radius:3px;color:#fff;}
+.inc-desc{font-size:11.5px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.inc-date{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-dim);margin-top:2px;}
+#map{flex:1;}
+#addbar{display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--accent);color:#000;font-weight:800;padding:8px 22px;border-radius:30px;z-index:1500;cursor:pointer;}
+.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:2000;align-items:center;justify-content:center;}
+.ov.open{display:flex;}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:10px;width:500px;max-width:96vw;max-height:92vh;overflow-y:auto;}
+.modal-sm{width:360px;}
+.mhd{padding:13px 17px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;}
+.mclose{background:none;border:none;color:var(--text-muted);font-size:22px;cursor:pointer;}
+.mbd{padding:17px;}
+.mft{padding:13px 17px;border-top:1px solid var(--border);display:flex;gap:7px;justify-content:flex-end;}
+.fg{margin-bottom:12px;}
+.fl{display:block;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;color:var(--text-muted);margin-bottom:4px;}
+.fc{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:7px 10px;color:var(--text);}
+.fc:focus{outline:none;border-color:var(--accent);}
+.photo-drop{border:2px dashed var(--border2);border-radius:6px;padding:22px;text-align:center;cursor:pointer;background:var(--surface2);}
+#photo-preview{display:none;width:100%;max-height:160px;object-fit:cover;border-radius:6px;margin-top:8px;}
+.leaflet-popup-content-wrapper{background:var(--surface)!important;border:1px solid var(--border2)!important;border-radius:9px!important;}
+.leaflet-popup-tip{background:var(--border2)!important;}
+.pu{padding:13px 15px;}
+.pu-hd{display:flex;align-items:center;gap:6px;margin-bottom:9px;}
+.pu-cat{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;padding:3px 8px;border-radius:4px;color:#fff;}
+.pu-active{color:#e87862;margin-left:auto;}
+.pu-photo{width:100%;height:128px;object-fit:cover;border-radius:6px;margin-bottom:9px;cursor:pointer;}
+.pu-desc{font-size:12.5px;margin-bottom:9px;}
+.pu-meta{display:grid;grid-template-columns:auto 1fr;gap:3px 9px;font-size:11px;padding-top:8px;border-top:1px solid var(--border);}
+.pu-acts{display:flex;gap:5px;margin-top:8px;}
+.bsm{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;padding:5px 10px;border-radius:4px;cursor:pointer;border:none;}
+.bsm-edit{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.bsm-del{background:rgba(224,85,53,.12);color:#e87862;border:1px solid rgba(224,85,53,.3);}
+.bsm-resolve{background:rgba(58,173,104,.14);color:#3aad68;border:1px solid rgba(58,173,104,.35);}
+.inc-item-resolved{background:rgba(58,173,104,.07);border:1px solid rgba(58,173,104,.25);border-radius:6px;padding:8px 9px;margin-bottom:5px;cursor:pointer;}
+.pu-resolved-badge{color:#3aad68;margin-left:auto;}
+</style>
 </head>
 <body>
-<header>
-    <h1>🌿 Kumluca Ekoloji Portalı</h1>
-    <p>Çevre ihlallerini haritada görüntüleyin</p>
-</header>
-<div class="container">
-    <div id="map"></div>
-    <div class="info">
-        <p>Harita üzerinde işaretlenmiş çevre sorunlarını görmek için veri girişi yapılmalıdır.</p>
-        <button onclick="alert('Admin girişi yaparak veri ekleyebilirsiniz.')">Admin Girişi</button>
+
+<div id="topbar">
+  <div class="tb-logo">🌿 KUMLUCA Çevre İzleme</div>
+  <div class="tb-stats">
+    <span class="spl" id="st-total">0 kayıt</span>
+    <span class="spl" id="st-active">0 aktif</span>
+  </div>
+  <div class="tb-right">
+    <span class="admin-badge" id="admin-badge">🔓 Admin</span>
+    <button class="btn admin-only" id="add-btn">📍 Nokta Ekle</button>
+    <button class="btn btn-active" id="active-btn">● Aktifler</button>
+    <button class="btn" id="resolved-btn" style="color:#3aad68;">✓ Çözülenler</button>
+    <button class="btn admin-only" onclick="doExport()">⬇ JSON</button>
+    <button class="btn admin-only" onclick="openImport()">⬆ Aktar</button>
+    <button class="btn" id="login-btn">🔐 Admin</button>
+  </div>
+</div>
+
+<div id="main">
+  <div id="sidebar">
+    <div class="sb-sec">
+      <div class="sb-lbl">Kategoriler — Filtrele</div>
+      <div class="filter-wrap" id="fchips"></div>
     </div>
+    <div class="sb-sec" style="flex:1;overflow:auto;">
+      <div class="sb-lbl">Aktif Sorunlar</div>
+      <div id="incident-list"></div>
+    </div>
+  </div>
+  <div id="map"></div>
+</div>
+
+<div id="addbar" onclick="toggleAdd()">✕ Haritaya tıklayarak konum seçin — İptal</div>
+
+<!-- LOGIN -->
+<div class="ov" id="login-ov">
+  <div class="modal modal-sm">
+    <div class="mhd"><span class="mhd-title">Admin Girişi</span><button class="mclose" onclick="closeOv('login-ov')">×</button></div>
+    <div class="mbd">
+      <div class="fg"><label class="fl">Kullanıcı Adı</label><input class="fc" type="text" id="l-user"></div>
+      <div class="fg"><label class="fl">Şifre</label><input class="fc" type="password" id="l-pass"></div>
+    </div>
+    <div class="mft">
+      <button class="btn" onclick="closeOv('login-ov')">İptal</button>
+      <button class="btn btn-primary" onclick="doLogin()">Giriş</button>
+    </div>
+  </div>
+</div>
+
+<!-- FORM -->
+<div class="ov" id="form-ov">
+  <div class="modal">
+    <div class="mhd"><span class="mhd-title" id="form-title">Yeni Kayıt</span><button class="mclose" onclick="closeOv('form-ov')">×</button></div>
+    <div class="mbd">
+      <div class="fg"><label class="fl">Kategori</label><select class="fc" id="fcat"></select></div>
+      <div class="fg"><label class="fl">Açıklama</label><textarea class="fc" id="fdesc" rows="3"></textarea></div>
+      <div class="fg"><label class="fl">Tarih</label><input type="date" class="fc" id="fdate"></div>
+      <div class="fg"><label class="fl">Mevki</label><input class="fc" id="floc"></div>
+      <div class="fg"><label class="fl">Fotoğraf (URL veya dosya)</label>
+        <input class="fc" type="url" id="fphoto" placeholder="https://...">
+        <input type="file" id="fphoto-file" accept="image/*" style="margin-top:6px;">
+        <img id="photo-preview">
+      </div>
+      <div class="fg"><label class="fl">Raporlayan</label><input class="fc" id="freporter"></div>
+      <div class="fg"><label class="fl">Şiddet (1-5)</label><select class="fc" id="fsev"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select></div>
+    </div>
+    <div class="mft">
+      <button class="btn" onclick="closeOv('form-ov')">İptal</button>
+      <button class="btn btn-primary" id="save-btn" onclick="saveInc()">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- ÇÖZÜM -->
+<div class="ov" id="resolve-ov">
+  <div class="modal modal-sm">
+    <div class="mhd"><span class="mhd-title">✅ Çözüm Bildir</span><button class="mclose" onclick="closeOv('resolve-ov')">×</button></div>
+    <div class="mbd">
+      <input type="hidden" id="resolve-id">
+      <div class="fg"><label class="fl">Çözüm Tarihi</label><input type="date" class="fc" id="rdate"></div>
+      <div class="fg"><label class="fl">Çözen Taraf</label>
+        <select class="fc" id="rby"><option value="kurum">Resmi Kurum</option><option value="gonullu">Gönüllüler</option><option value="sivil">STK</option></select>
+      </div>
+      <div class="fg"><label class="fl">Not</label><textarea class="fc" id="rnote" rows="3"></textarea></div>
+    </div>
+    <div class="mft">
+      <button class="btn" onclick="closeOv('resolve-ov')">İptal</button>
+      <button class="btn btn-primary" onclick="doResolve()">Çözüldü</button>
+    </div>
+  </div>
 </div>
 
 <script>
-    // Haritayı başlat (Kumluca merkez)
-    var map = L.map('map').setView([36.3691, 30.2867], 13);
+// ===================== TAMAMEN FIREBASE'SİZ, SERVER.JS İLE ÇALIŞIR =====================
+let data = [];
+let mkrs = {};
+let addMode = false;
+let pendLL = null;
+let editId = null;
+let viewMode = 'active';
+let activeF = new Set();
+let isAdmin = false;
+let photoBase64 = null;
 
-    // Temel harita katmanı (OpenStreetMap)
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; CartoDB',
-        subdomains: 'abcd',
-        maxZoom: 19,
-        minZoom: 6
-    }).addTo(map);
+const CATS = [
+  {id:'cop',label:'Çöp / Evsel Atık',icon:'🗑️',color:'#e05535'},
+  {id:'sera',label:'Sera Atığı',icon:'🏚️',color:'#55bb65'},
+  {id:'su',label:'Kirlenmiş Su',icon:'💧',color:'#2d80e0'},
+  {id:'kimyasal',label:'Kimyasal',icon:'☣️',color:'#b828c0'},
+  {id:'kacak',label:'Kaçak Döküm',icon:'🚮',color:'#c03040'},
+  {id:'yangin',label:'Yangın Riski',icon:'🔥',color:'#e86010'}
+];
+const CMAP = {}; CATS.forEach(c => CMAP[c.id] = c);
 
-    // Test marker'ı (Kumluca merkeze bir işaret koyalım)
-    var marker = L.marker([36.3691, 30.2867]).addTo(map);
-    marker.bindPopup("<b>Kumluca Merkez</b><br>Portal aktif.").openPopup();
+const ADMIN_PASS = "1234";
 
-    // Eğer daha önce kaydedilmiş veriler varsa onları da göster (opsiyonel)
-    fetch('/data')
-        .then(res => res.json())
-        .then(data => {
-            if (data && data.length) {
-                data.forEach(inc => {
-                    if (inc.active !== false && inc.lat && inc.lng) {
-                        L.marker([inc.lat, inc.lng])
-                            .addTo(map)
-                            .bindPopup(`<b>${inc.category || 'İhlal'}</b><br>${inc.description || ''}`);
-                    }
-                });
-            }
-        })
-        .catch(err => console.log("Veri yüklenemedi:", err));
+// Sunucudan veri çek
+async function fetchData() {
+  const res = await fetch("/data");
+  data = await res.json();
+  renderMkrs();
+  renderList();
+  updateStats();
+}
+
+// Yeni kayıt gönder
+async function sendPost(entry) {
+  const res = await fetch("/data", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ password: ADMIN_PASS, ...entry })
+  });
+  if (!res.ok) throw new Error(await res.text());
+  await fetchData();
+}
+
+// Güncelleme
+async function sendPut(id, updates) {
+  const res = await fetch(`/data/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ password: ADMIN_PASS, updates })
+  });
+  if (!res.ok) throw new Error(await res.text());
+  await fetchData();
+}
+
+// Sil
+async function sendDelete(id) {
+  const res = await fetch(`/data/${id}`, {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ password: ADMIN_PASS })
+  });
+  if (!res.ok) throw new Error(await res.text());
+  await fetchData();
+}
+
+// Harita
+const map = L.map('map').setView([36.368, 30.290], 12);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  attribution: '© CartoDB',
+  subdomains: 'abcd',
+  maxZoom: 20
+}).addTo(map);
+
+map.on('click', e => {
+  if (!addMode) return;
+  pendLL = e.latlng;
+  editId = null;
+  openForm();
+});
+
+function makeIcon(catId) {
+  const cat = CMAP[catId] || CATS[0];
+  const sz = 34;
+  const svg = `<svg width="${sz}" height="${sz+10}" viewBox="0 0 ${sz} ${sz+10}"><path d="M${sz/2} 2 C${sz*.18} 2,2 ${sz*.3},2 ${sz*.52} C2 ${sz*.82},${sz/2} ${sz+8},${sz/2} ${sz+8} C${sz/2} ${sz+8},${sz-2} ${sz*.82},${sz-2} ${sz*.52} C${sz-2} ${sz*.3},${sz*.82} 2,${sz/2} 2Z" fill="${cat.color}"/><text x="${sz/2}" y="${sz*.5}" text-anchor="middle" font-size="${sz*.44}" fill="white">${cat.icon}</text></svg>`;
+  return L.divIcon({ html: svg, iconSize: [sz, sz+10], iconAnchor: [sz/2, sz+10] });
+}
+
+function addMkr(inc) {
+  if (!inc.active || !activeF.has(inc.category)) return;
+  const mk = L.marker([inc.lat, inc.lng], { icon: makeIcon(inc.category) }).addTo(map);
+  mk.bindPopup(() => makePopup(inc.id));
+  mkrs[inc.id] = mk;
+}
+
+function makePopup(id) {
+  const inc = data.find(i => i.id === id);
+  if (!inc) return '';
+  const cat = CMAP[inc.category] || CATS[0];
+  const img = inc.photo ? `<img src="${inc.photo}" class="pu-photo" onclick="window.open('${inc.photo}','_blank')">` : '<div class="pu-photo" style="background:#2c3e50;display:flex;align-items:center;justify-content:center;">📷 Yok</div>';
+  const acts = isAdmin ? `<div class="pu-acts"><button class="bsm bsm-edit" onclick="editInc('${id}')">✏️ Düzenle</button><button class="bsm bsm-resolve" onclick="openResolve('${id}')">✅ Çözüldü</button><button class="bsm bsm-del" onclick="delInc('${id}')">🗑 Sil</button></div>` : '';
+  return `<div class="pu"><div class="pu-hd"><span class="pu-cat" style="background:${cat.color};">${cat.icon} ${cat.label}</span><span class="pu-active">● AKTİF</span></div>${img}<div class="pu-desc">${inc.description}</div><div class="pu-meta"><div class="mk">Tarih</div><div>${inc.date}</div><div class="mk">Mevki</div><div>${inc.location || '—'}</div><div class="mk">Raporlayan</div><div>${inc.reporter || '—'}</div></div>${acts}</div>`;
+}
+
+function renderMkrs() {
+  Object.values(mkrs).forEach(m => map.removeLayer(m));
+  mkrs = {};
+  data.forEach(inc => {
+    if (viewMode === 'active' && inc.active && activeF.has(inc.category)) addMkr(inc);
+  });
+}
+
+function renderList() {
+  const container = document.getElementById('incident-list');
+  const filtered = data.filter(i => i.active && activeF.has(i.category)).sort((a,b) => new Date(b.date) - new Date(a.date));
+  if (!filtered.length) { container.innerHTML = '<div style="padding:20px;text-align:center;">Aktif sorun yok</div>'; return; }
+  container.innerHTML = '';
+  filtered.forEach(inc => {
+    const cat = CMAP[inc.category] || CATS[0];
+    const div = document.createElement('div');
+    div.className = 'inc-item';
+    div.style.borderLeft = `3px solid ${cat.color}`;
+    div.innerHTML = `<div class="inc-hd"><span class="inc-badge" style="background:${cat.color};">${cat.icon} ${cat.label}</span><span>● AKTİF</span></div><div class="inc-desc">${inc.description}</div><div class="inc-date">${inc.date}</div>`;
+    div.onclick = () => { map.setView([inc.lat, inc.lng], 15); mkrs[inc.id]?.openPopup(); };
+    container.appendChild(div);
+  });
+}
+
+function updateStats() {
+  document.getElementById('st-total').textContent = `${data.length} kayıt`;
+  document.getElementById('st-active').textContent = `${data.filter(i=>i.active).length} aktif`;
+}
+
+function initChips() {
+  const wrap = document.getElementById('fchips');
+  CATS.forEach(cat => {
+    const chip = document.createElement('div');
+    chip.className = 'fchip on';
+    chip.textContent = `${cat.icon} ${cat.label.split(' ')[0]}`;
+    chip.dataset.id = cat.id;
+    chip.onclick = () => {
+      if (activeF.has(cat.id)) activeF.delete(cat.id);
+      else activeF.add(cat.id);
+      chip.classList.toggle('on', activeF.has(cat.id));
+      renderMkrs();
+      renderList();
+    };
+    wrap.appendChild(chip);
+    activeF.add(cat.id);
+  });
+}
+
+function initCatSel() {
+  const sel = document.getElementById('fcat');
+  CATS.forEach(c => { const opt = document.createElement('option'); opt.value = c.id; opt.textContent = `${c.icon} ${c.label}`; sel.appendChild(opt); });
+}
+
+function openForm(id) {
+  if (!isAdmin) return;
+  editId = id || null;
+  document.getElementById('form-title').textContent = id ? 'Düzenle' : 'Yeni Kayıt';
+  document.getElementById('fdate').value = new Date().toISOString().split('T')[0];
+  document.getElementById('fdesc').value = '';
+  document.getElementById('floc').value = '';
+  document.getElementById('fphoto').value = '';
+  document.getElementById('freporter').value = '';
+  document.getElementById('fsev').value = '3';
+  document.getElementById('photo-preview').style.display = 'none';
+  photoBase64 = null;
+  if (id) {
+    const inc = data.find(i => i.id === id);
+    if (inc) {
+      document.getElementById('fcat').value = inc.category;
+      document.getElementById('fdesc').value = inc.description;
+      document.getElementById('fdate').value = inc.date;
+      document.getElementById('floc').value = inc.location || '';
+      document.getElementById('freporter').value = inc.reporter || '';
+      document.getElementById('fsev').value = inc.severity || '3';
+      if (inc.photo && inc.photo.startsWith('data:')) {
+        document.getElementById('photo-preview').src = inc.photo;
+        document.getElementById('photo-preview').style.display = 'block';
+        photoBase64 = inc.photo;
+      } else {
+        document.getElementById('fphoto').value = inc.photo || '';
+      }
+    }
+  }
+  document.getElementById('form-ov').classList.add('open');
+}
+
+async function saveInc() {
+  const cat = document.getElementById('fcat').value;
+  const desc = document.getElementById('fdesc').value.trim();
+  const date = document.getElementById('fdate').value;
+  const loc = document.getElementById('floc').value.trim();
+  let photo = document.getElementById('fphoto').value.trim();
+  const reporter = document.getElementById('freporter').value.trim();
+  const sev = document.getElementById('fsev').value;
+  if (!desc) { alert('Açıklama girin'); return; }
+  if (photoBase64) photo = photoBase64;
+  else if (document.getElementById('fphoto-file').files[0]) {
+    const file = document.getElementById('fphoto-file').files[0];
+    const reader = new FileReader();
+    reader.onload = e => { photoBase64 = e.target.result; saveFinal(); };
+    reader.readAsDataURL(file);
+    return;
+  }
+  saveFinal();
+  async function saveFinal() {
+    const saveBtn = document.getElementById('save-btn');
+    saveBtn.disabled = true;
+    try {
+      if (editId) {
+        await sendPut(editId, { category: cat, description: desc, date, location: loc, photo: photoBase64 || photo, reporter, severity: sev });
+      } else {
+        if (!pendLL) { alert('Önce haritaya tıklayarak konum seçin'); return; }
+        await sendPost({
+          kategori: cat, aciklama: desc, lat: pendLL.lat, lng: pendLL.lng,
+          date, location: loc, photo: photoBase64 || photo, reporter, severity: sev
+        });
+      }
+      closeOv('form-ov');
+      pendLL = null;
+      if (addMode) toggleAdd();
+    } catch(e) { alert('Hata: ' + e.message); }
+    finally { saveBtn.disabled = false; }
+  }
+}
+
+async function delInc(id) {
+  if (!confirm('Sil?')) return;
+  await sendDelete(id);
+}
+
+function openResolve(id) {
+  document.getElementById('resolve-id').value = id;
+  document.getElementById('rdate').value = new Date().toISOString().split('T')[0];
+  document.getElementById('resolve-ov').classList.add('open');
+}
+async function doResolve() {
+  const id = document.getElementById('resolve-id').value;
+  const rdate = document.getElementById('rdate').value;
+  const rby = document.getElementById('rby').value;
+  const rnote = document.getElementById('rnote').value;
+  await sendPut(id, { active: false, resolutionDate: rdate, resolvedBy: rby, resolvedNote: rnote });
+  closeOv('resolve-ov');
+}
+
+function editInc(id) { openForm(id); }
+
+function toggleAdd() {
+  if (!isAdmin) return;
+  addMode = !addMode;
+  document.getElementById('add-btn').classList.toggle('btn-active', addMode);
+  document.getElementById('addbar').style.display = addMode ? 'block' : 'none';
+  if (!addMode) pendLL = null;
+}
+
+function setViewMode(mode) {
+  viewMode = mode;
+  document.getElementById('active-btn').className = mode === 'active' ? 'btn btn-active' : 'btn';
+  document.getElementById('resolved-btn').className = mode === 'resolved' ? 'btn btn-active' : 'btn';
+  renderMkrs();
+  renderList();
+}
+
+function doExport() {
+  const exp = data.map(i => i.photo?.startsWith('data:') ? { ...i, photo: '[base64]' } : i);
+  const blob = new Blob([JSON.stringify(exp, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `kumluca-${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+}
+function openImport() { alert('JSON yükleme: dosyayı seçin'); }
+function closeOv(id) { document.getElementById(id).classList.remove('open'); }
+
+// Admin girişi
+function openLogin() { document.getElementById('login-ov').classList.add('open'); }
+function doLogin() {
+  const u = document.getElementById('l-user').value;
+  const p = document.getElementById('l-pass').value;
+  if (u === 'admin' && p === 'Smtppl5862') {
+    isAdmin = true;
+    document.body.classList.add('admin-mode');
+    document.getElementById('admin-badge').classList.add('on');
+    document.getElementById('login-btn').innerHTML = '⚙️ Panel';
+    document.getElementById('login-btn').onclick = () => alert('Admin paneli gelecek');
+    closeOv('login-ov');
+  } else { alert('Hatalı giriş'); }
+}
+
+// Başlangıç
+fetchData();
+initChips();
+initCatSel();
+document.getElementById('add-btn').style.display = 'none';
+document.getElementById('login-btn').onclick = openLogin;
+document.getElementById('add-btn').onclick = toggleAdd;
+document.getElementById('active-btn').onclick = () => setViewMode('active');
+document.getElementById('resolved-btn').onclick = () => setViewMode('resolved');
+document.getElementById('fphoto-file').onchange = e => {
+  const f = e.target.files[0];
+  if (f) {
+    const r = new FileReader();
+    r.onload = ev => { photoBase64 = ev.target.result; document.getElementById('photo-preview').src = photoBase64; document.getElementById('photo-preview').style.display = 'block'; };
+    r.readAsDataURL(f);
+  }
+};
 </script>
 </body>
 </html>
