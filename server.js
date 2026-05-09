@@ -12,7 +12,7 @@ app.use(cors());
 app.use(bodyParser.json({ limit: "10mb" }));
 app.use(express.static("."));
 
-// Yardımcı: data.json'dan oku
+// Verileri oku
 function readData() {
   if (!fs.existsSync(FILE)) return [];
   try {
@@ -22,24 +22,21 @@ function readData() {
   }
 }
 
-// Yardımcı: data.json'a yaz + otomatik git push
-function writeDataAndCommit(data, commitMsg = "Veri güncellendi") {
+// Verileri yaz ve otomatik git push
+function writeDataAndCommit(data, commitMsg) {
   fs.writeFileSync(FILE, JSON.stringify(data, null, 2));
-  // Otomatik git işlemleri
   exec(`git add data.json && git commit -m "${commitMsg}" && git push origin main`, (err, stdout, stderr) => {
-    if (err) console.error("❌ Git otomatik hata:", err.message);
-    else console.log("✅ Otomatik yedek başarılı:", stdout.trim());
+    if (err) console.error("❌ Otomatik git hatası:", err.message);
+    else console.log("✅ Otomatik yedek başarılı");
   });
 }
 
-// ---------- API ----------
-// Tüm verileri getir
+// GET /data - tüm veriler
 app.get("/data", (req, res) => {
-  const data = readData();
-  res.json(data);
+  res.json(readData());
 });
 
-// Yeni kayıt ekle
+// POST /data - yeni kayıt (şifre 1234)
 app.post("/data", (req, res) => {
   const { password, kategori, aciklama, lat, lng, photo, date, location, reporter, severity } = req.body;
   if (password !== "1234") return res.status(401).json({ status: "Hatalı şifre" });
@@ -60,43 +57,33 @@ app.post("/data", (req, res) => {
     createdAt: new Date().toISOString()
   };
   data.push(newEntry);
-  writeDataAndCommit(data, `Yeni kayıt: ${kategori} - ${aciklama.slice(0,30)}`);
+  writeDataAndCommit(data, `Yeni kayıt: ${kategori}`);
   res.json({ status: "ok", id: newId });
 });
 
-// Kayıt güncelle (düzenleme veya çözme)
+// PUT /data/:id - güncelleme (çözme, düzenleme)
 app.put("/data/:id", (req, res) => {
-  const { password } = req.body;
+  const { password, updates } = req.body;
   if (password !== "1234") return res.status(401).json({ status: "Hatalı şifre" });
 
   let data = readData();
   const index = data.findIndex(i => i.id === req.params.id);
-  if (index === -1) return res.status(404).json({ status: "Kayıt bulunamadı" });
-
-  // Gelen alanları mevcut kayıtla birleştir
-  data[index] = { ...data[index], ...req.body.updates };
-  writeDataAndCommit(data, `Güncelleme: ${data[index].category}`);
+  if (index === -1) return res.status(404).json({ status: "Bulunamadı" });
+  data[index] = { ...data[index], ...updates };
+  writeDataAndCommit(data, `Güncelleme: ${req.params.id}`);
   res.json({ status: "ok" });
 });
 
-// Kayıt sil
+// DELETE /data/:id - silme
 app.delete("/data/:id", (req, res) => {
   const { password } = req.body;
   if (password !== "1234") return res.status(401).json({ status: "Hatalı şifre" });
 
   let data = readData();
   const newData = data.filter(i => i.id !== req.params.id);
-  if (newData.length === data.length) return res.status(404).json({ status: "Kayıt bulunamadı" });
-  writeDataAndCommit(newData, `Kayıt silindi: ${req.params.id}`);
+  if (newData.length === data.length) return res.status(404).json({ status: "Bulunamadı" });
+  writeDataAndCommit(newData, `Silindi: ${req.params.id}`);
   res.json({ status: "ok" });
 });
 
-// Tüm verileri temizle (sadece admin acil durum)
-app.delete("/data", (req, res) => {
-  const { password } = req.body;
-  if (password !== "1234") return res.status(401).json({ status: "Hatalı şifre" });
-  writeDataAndCommit([], "Tüm veriler temizlendi");
-  res.json({ status: "ok" });
-});
-
-app.listen(PORT, () => console.log(`🚀 Sunucu çalışıyor: http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Sunucu http://localhost:${PORT}`));
