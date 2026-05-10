@@ -24,7 +24,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);disp
 
 #topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 10px;height:50px;display:flex;align-items:center;gap:8px;flex-shrink:0;z-index:900;overflow-x:auto;overflow-y:hidden;}
 #topbar::-webkit-scrollbar{display:none;}
-.tb-logo{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:17px;letter-spacing:.6px;color:var(--accent);white-space:nowrap;display:flex;align-items:center;gap:6px;}
+.tb-logo{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:17px;letter-spacing:.6px;color:var(--accent);white-space:nowrap;display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none;}
 .tb-logo span{color:var(--text-muted);font-weight:600;font-size:14px;}
 .tb-div{width:1px;height:26px;background:var(--border);flex-shrink:0;}
 .tb-stats{display:flex;gap:5px;align-items:center;flex-shrink:0;}
@@ -212,7 +212,7 @@ textarea.fc{min-height:74px;resize:vertical;}
 
 <div id="topbar">
   <button id="ham-btn" onclick="toggleSidebar()">☰</button>
-  <div class="tb-logo">🌿 KUMLUCA <span>Çevre İzleme</span></div>
+  <div class="tb-logo" id="tb-logo">🌿 KUMLUCA <span>Çevre İzleme</span></div>
   <div class="tb-div"></div>
   <div class="tb-stats">
     <span class="spl spl-t" id="st-total">0 kayıt</span>
@@ -228,7 +228,8 @@ textarea.fc{min-height:74px;resize:vertical;}
     <button class="btn btn-ghost admin-only" onclick="openImport()">⬆ Aktar</button>
     <button class="btn btn-ghost admin-only" onclick="openQR()">▦ QR</button>
     <div class="tb-div"></div>
-    <button class="btn btn-ghost" id="login-btn" onclick="openLogin()">🔐 Admin</button>
+    <!-- Login butonu gizli — logoya 3x tıkla -->
+    <button class="btn btn-ghost" id="login-btn" onclick="openLogin()" style="display:none;">🔐 Admin</button>
   </div>
 </div>
 
@@ -318,7 +319,6 @@ textarea.fc{min-height:74px;resize:vertical;}
         <div class="fg"><label class="fl">Tespit Tarihi</label><input type="date" class="fc" id="fdate"></div>
         <div class="fg"><label class="fl">Mevki / Adres Notu</label><input type="text" class="fc" id="floc" placeholder="Mahalle, yol kenarı…"></div>
       </div>
-      <!-- Konum (sadece düzenlemede) -->
       <div class="fg" id="floc-coord" style="display:none;">
         <label class="fl">Konum</label>
         <div style="display:flex;gap:7px;align-items:center;">
@@ -509,12 +509,12 @@ const RBYMAP={
 let data=[],mkrs={},addMode=false,pendLL=null,editId=null,qrObj=null;
 let editLocationMode=false,editPendLL=null;
 let showResolved=false;
-let viewMode='active'; // 'active' | 'resolved'
+let viewMode='active';
 let activeF=new Set(CATS.map(c=>c.id));
 let isAdmin=false,activeOV=new Set(['sinir']);
 let db=null,fbEnabled=false;
 let photoBase64=null,photoTabMode='url';
-const AUTH_KEY='kumluca_auth_v1',DATA_KEY='kumluca_env_v2';
+const AUTH_KEY='kumluca_auth_v1',DATA_KEY='kumluca_env_v2',ADMIN_SESSION_KEY='kumluca_admin_ok';
 
 function getCreds(){try{const s=localStorage.getItem(AUTH_KEY);if(s)return JSON.parse(s);}catch(e){}return{user:'admin',pass:'Smtppl5862'};}
 function saveCreds(o){try{localStorage.setItem(AUTH_KEY,JSON.stringify(o));}catch(e){}}
@@ -628,8 +628,47 @@ function closeSidebar(){document.getElementById('sidebar').classList.remove('ope
 
 // AUTH
 function openLogin(){document.getElementById('l-user').value='';document.getElementById('l-pass').value='';document.getElementById('login-err').classList.remove('on');document.getElementById('login-ov').classList.add('open');setTimeout(()=>document.getElementById('l-user').focus(),120);}
-function doLogin(){const u=document.getElementById('l-user').value.trim();const p=document.getElementById('l-pass').value;const cr=getCreds();if(u===cr.user&&p===cr.pass){isAdmin=true;document.body.classList.add('admin-mode');document.getElementById('admin-badge').classList.add('on');document.getElementById('login-btn').innerHTML='⚙️ Panel';document.getElementById('login-btn').onclick=()=>document.getElementById('admin-ov').classList.add('open');document.getElementById('login-err').classList.remove('on');closeOv('login-ov');}else{document.getElementById('login-err').classList.add('on');document.getElementById('l-pass').value='';document.getElementById('l-pass').focus();}}
-function doLogout(){isAdmin=false;document.body.classList.remove('admin-mode');document.getElementById('admin-badge').classList.remove('on');document.getElementById('login-btn').innerHTML='🔐 Admin';document.getElementById('login-btn').onclick=openLogin;closeOv('admin-ov');map.closePopup();if(addMode)toggleAdd();}
+
+function applyAdminUI(){
+  isAdmin=true;
+  document.body.classList.add('admin-mode');
+  document.getElementById('admin-badge').classList.add('on');
+  const lb=document.getElementById('login-btn');
+  lb.style.display='flex';
+  lb.innerHTML='⚙️ Panel';
+  lb.onclick=()=>document.getElementById('admin-ov').classList.add('open');
+}
+
+function doLogin(){
+  const u=document.getElementById('l-user').value.trim();
+  const p=document.getElementById('l-pass').value;
+  const cr=getCreds();
+  if(u===cr.user&&p===cr.pass){
+    localStorage.setItem(ADMIN_SESSION_KEY,'1');
+    applyAdminUI();
+    document.getElementById('login-err').classList.remove('on');
+    closeOv('login-ov');
+  }else{
+    document.getElementById('login-err').classList.add('on');
+    document.getElementById('l-pass').value='';
+    document.getElementById('l-pass').focus();
+  }
+}
+
+function doLogout(){
+  isAdmin=false;
+  localStorage.removeItem(ADMIN_SESSION_KEY);
+  document.body.classList.remove('admin-mode');
+  document.getElementById('admin-badge').classList.remove('on');
+  const lb=document.getElementById('login-btn');
+  lb.style.display='none';
+  lb.innerHTML='🔐 Admin';
+  lb.onclick=openLogin;
+  closeOv('admin-ov');
+  map.closePopup();
+  if(addMode)toggleAdd();
+}
+
 function changePassword(){const old=document.getElementById('pw-old').value;const nw=document.getElementById('pw-new').value;const nw2=document.getElementById('pw-new2').value;const msg=document.getElementById('pw-msg');const cr=getCreds();const show=(t,ok)=>{msg.style.display='block';msg.textContent=t;msg.style.background=ok?'rgba(58,173,104,.12)':'rgba(224,85,53,.12)';msg.style.color=ok?'#3aad68':'#e87862';msg.style.border=`1px solid ${ok?'rgba(58,173,104,.3)':'rgba(224,85,53,.3)'}`;};if(old!==cr.pass){show('Mevcut şifre hatalı.',false);return;}if(nw.length<6){show('En az 6 karakter.',false);return;}if(nw!==nw2){show('Şifreler eşleşmiyor.',false);return;}saveCreds({user:'admin',pass:nw});['pw-old','pw-new','pw-new2'].forEach(id=>document.getElementById(id).value='');show('Şifre güncellendi.',true);}
 async function clearAll(){if(!isAdmin)return;if(!confirm('TÜM kayıtlar (aktif + çözülmüş) kalıcı silinecek. Emin misiniz?'))return;if(!confirm('Son onay — geri alınamaz.'))return;data=[];Object.keys(mkrs).forEach(id=>map.removeLayer(mkrs[id]));mkrs={};await fbClearAll();if(!fbEnabled){renderList();updateStats();}map.closePopup();closeOv('admin-ov');}
 
@@ -661,7 +700,7 @@ async function saveInc(){if(!isAdmin)return;const cat=document.getElementById('f
 function openResolve(id){if(!isAdmin)return;document.getElementById('resolve-id').value=id;document.getElementById('rdate').value=new Date().toISOString().split('T')[0];document.getElementById('rby').value='kurum';document.getElementById('rnote').value='';document.getElementById('rphoto-url').value='';map.closePopup();document.getElementById('resolve-ov').classList.add('open');}
 async function doResolve(){if(!isAdmin)return;const id=document.getElementById('resolve-id').value;const rdate=document.getElementById('rdate').value;const rby=document.getElementById('rby').value;const rnote=document.getElementById('rnote').value.trim();const rphoto=document.getElementById('rphoto-url').value.trim();const btn=document.getElementById('resolve-btn');btn.disabled=true;btn.textContent='⏳ Kaydediliyor…';try{const updates={active:false,resolutionDate:rdate,resolvedBy:rby,resolvedNote:rnote,resolvedPhoto:rphoto,resolvedAt:new Date().toISOString()};if(fbEnabled){await fbUpdate(id,updates);}else{const inc=data.find(i=>i.id===id);Object.assign(inc,updates);saveLocalData();renderMkrs();renderList();if(viewMode==='resolved')renderResolvedSidebar();updateStats();}closeOv('resolve-ov');}catch(e){alert('Hata: '+e.message);}finally{btn.disabled=false;btn.innerHTML='✅ Çözüldü Olarak İşaretle';}}
 
-// MARKERS (sadece active=true)
+// MARKERS
 function makeIcon(catId){const cat=CMAP[catId]||CMAP['cop'];const sz=34;const svg=`<svg width="${sz}" height="${sz+10}" viewBox="0 0 ${sz} ${sz+10}" xmlns="http://www.w3.org/2000/svg"><defs><filter id="fx"><feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="rgba(0,0,0,.55)"/></filter></defs><path d="M${sz/2} 2 C${sz*.18} 2,2 ${sz*.3},2 ${sz*.52} C2 ${sz*.82},${sz/2} ${sz+8},${sz/2} ${sz+8} C${sz/2} ${sz+8},${sz-2} ${sz*.82},${sz-2} ${sz*.52} C${sz-2} ${sz*.3},${sz*.82} 2,${sz/2} 2Z" fill="${cat.color}" filter="url(#fx)"/><text x="${sz/2}" y="${sz*.5}" text-anchor="middle" dominant-baseline="middle" font-size="${sz*.44}">${(cat.icon||'•').replace(/[\uFE0F\u200D]/g,'')}</text></svg>`;return L.divIcon({html:svg,className:'',iconSize:[sz,sz+10],iconAnchor:[sz/2,sz+10],popupAnchor:[0,-(sz+10)]});}
 function addMkr(inc){if(!inc.active||!activeF.has(inc.category))return;const mk=L.marker([inc.lat,inc.lng],{icon:makeIcon(inc.category)}).addTo(map);mk.bindPopup(()=>makePU(inc.id),{maxWidth:330,minWidth:285});mk.on('click',()=>map.flyTo([inc.lat,inc.lng],Math.max(map.getZoom(),16),{animate:true,duration:0.5}));mkrs[inc.id]=mk;}
 function addResolvedMkr(inc){
@@ -685,7 +724,7 @@ function makePU(id){const inc=data.find(i=>i.id===id);if(!inc)return'';const cat
 function editInc(id){if(!isAdmin)return;map.closePopup();openForm(id);}
 async function delInc(id){if(!isAdmin)return;if(!confirm('Bu kaydı kalıcı olarak silmek istiyor musunuz?'))return;map.closePopup();if(fbEnabled){await fbDelete(id);}else{data=data.filter(i=>i.id!==id);removeMkr(id);saveLocalData();renderList();updateStats();}}
 
-// LIST (sadece active)
+// LIST
 function renderList(){const c=document.getElementById('incident-list');const filt=data.filter(i=>i.active&&activeF.has(i.category)).sort((a,b)=>new Date(b.createdAt||b.date)-new Date(a.createdAt||a.date));if(!filt.length){c.innerHTML='<div style="color:var(--text-dim);font-size:11px;text-align:center;padding:20px;">Aktif sorun yok</div>';return;}c.innerHTML='';filt.slice(0,80).forEach(inc=>{const cat=CMAP[inc.category]||CMAP['cop'];const el=document.createElement('div');el.className='inc-item';el.style.borderLeft=`3px solid ${cat.color}`;el.innerHTML=`<div class="inc-hd"><span class="inc-badge" style="background:${cat.color};">${cat.icon} ${cat.label.split('/')[0].trim()}</span><span class="inc-status" style="color:#e87862;">● AKTİF</span></div><div class="inc-desc">${esc(inc.description||'—')}</div><div class="inc-date">${fd(inc.date)}</div>`;el.onclick=()=>{if(mkrs[inc.id]){map.setView([inc.lat,inc.lng],15,{animate:true});setTimeout(()=>mkrs[inc.id].openPopup(),350);closeSidebar();}};c.appendChild(el);});}
 
 function updateStats(){const act=data.filter(i=>i.active).length;const res=data.filter(i=>!i.active).length;document.getElementById('st-total').textContent=`${act+res} kayıt`;document.getElementById('st-active').textContent=`${act} aktif`;}
@@ -693,7 +732,6 @@ function updateStats(){const act=data.filter(i=>i.active).length;const res=data.
 // VIEW MODE
 function setViewMode(mode){
   viewMode=mode;showResolved=(mode==='resolved');
-  // Buton stilleri
   const ab=document.getElementById('active-btn');
   const rb=document.getElementById('resolved-btn');
   ab.className=mode==='active'?'btn btn-active':'btn btn-ghost';
@@ -702,13 +740,10 @@ function setViewMode(mode){
   rb.className=mode==='resolved'?'btn btn-active':'btn btn-ghost';
   rb.style.color=mode==='resolved'?'':'#3aad68';
   rb.style.borderColor=mode==='resolved'?'':'rgba(58,173,104,.4)';
-  // Sidebar bölümleri
   document.getElementById('active-section').style.display=mode==='active'?'flex':'none';
   document.getElementById('resolved-section').style.display=mode==='resolved'?'flex':'none';
-  // Nokta ekle butonu sadece aktif modda görünür
   const addBtn=document.getElementById('add-btn');
   if(addBtn)addBtn.style.display=mode==='resolved'?'none':'';
-  // Eğer çözülen modda addMode açıksa kapat
   if(mode==='resolved'&&addMode)toggleAdd();
   renderMkrs();
   if(mode==='resolved')renderResolvedSidebar();
@@ -799,7 +834,6 @@ function dlQR(){const canvas=document.querySelector('#qr-wrap canvas');if(!canva
 
 function pickLocationForEdit(){
   editLocationMode=true;editPendLL=null;
-  // closeOv yerine doğrudan kaldır — yoksa closeOv kendi cancelPickLocation'ı tetikler
   document.getElementById('form-ov').classList.remove('open');
   const bar=document.getElementById('addbar');
   bar.innerHTML='📍 Yeni konumu haritaya tıklayarak seçin &nbsp;—&nbsp; <u style="cursor:pointer;">İptal</u>';
@@ -815,7 +849,6 @@ function cancelPickLocation(){
 }
 function closeOv(id){
   document.getElementById(id).classList.remove('open');
-  // Kullanıcı formu × ile kapatırsa konum seçme modunu da temizle
   if(id==='form-ov'&&editLocationMode){
     editLocationMode=false;editPendLL=null;
     document.getElementById('addbar').style.display='none';
@@ -830,6 +863,21 @@ function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/<
 function init(){
   initChips();initCatSel();initPhotoDrop();
   rebuildLeafletLayers();renderLayerBtns();initFirebase();
+
+  // Kalıcı admin oturumu — localStorage'da kayıtlıysa otomatik giriş
+  if(localStorage.getItem(ADMIN_SESSION_KEY)==='1'){
+    applyAdminUI();
+  }
+
+  // Gizli admin tetikleyici: logoya 3 kez tıkla (1.2 sn içinde)
+  let logoClicks=0,logoTimer=null;
+  document.getElementById('tb-logo').addEventListener('click',()=>{
+    logoClicks++;
+    if(logoTimer)clearTimeout(logoTimer);
+    logoTimer=setTimeout(()=>{logoClicks=0;},1200);
+    if(logoClicks>=3){logoClicks=0;openLogin();}
+  });
+
   document.querySelectorAll('.ov').forEach(o=>{o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');});});
 }
 if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',init);}else{init();}
